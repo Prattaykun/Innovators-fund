@@ -53,14 +53,14 @@ export default function LoadingSwapScreen({ message = "Loading Innovators Fund t
         >
           <div className="relative mb-6">
             {/* Spinning Outer Ring */}
-            <div className="h-24 w-24 rounded-2xl border-2 border-emerald-500/20 border-t-emerald-600 animate-spin dark:border-t-emerald-400" />
+            <div className="h-24 w-24 rounded-full border-2 border-emerald-500/20 border-t-emerald-600 animate-spin dark:border-t-emerald-400" />
             {/* Logo Center */}
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="h-16 w-16 rounded-xl border border-border bg-card p-1 shadow-md overflow-hidden animate-pulse">
+              <div className="h-16 w-16 rounded-full border border-border bg-card p-1 shadow-md overflow-hidden animate-pulse flex items-center justify-center">
                 <img
                   src="/logo.jpg"
                   alt="Team Innovators"
-                  className="h-full w-full object-contain rounded-lg"
+                  className="h-full w-full object-cover rounded-full"
                 />
               </div>
             </div>
