@@ -33,6 +33,7 @@ async function dispatchEmail(options: {
   toEmails: string[];
   subject: string;
   html: string;
+  text?: string;
 }) {
   if (smtpTransporter && SMTP_USER) {
     try {
@@ -41,6 +42,7 @@ async function dispatchEmail(options: {
         to: options.toEmails,
         subject: options.subject,
         html: options.html,
+        text: options.text || options.subject,
       });
       return { success: true, via: 'smtp', messageId: info.messageId };
     } catch (smtpError: any) {
@@ -55,6 +57,7 @@ async function dispatchEmail(options: {
       to: options.toEmails,
       subject: options.subject,
       html: options.html,
+      text: options.text,
     });
     return { success: true, via: 'resend', data: result };
   } catch (resendError: any) {
@@ -178,11 +181,14 @@ export async function sendNewRequestEmail(params: SendRequestEmailParams) {
     </html>
   `;
 
+  const text = `Innovators Fund Request\n\nA new fund request has been submitted for review:\nRequested Amount: ${formattedAmount}\nRequested By: ${params.requesterName}\nCategory: ${params.category}\nReason: ${params.reason}\n\nReview & Manage Request: ${BASE_URL}/?tab=requests&request=${params.requestId}`;
+
   try {
     return await dispatchEmail({
       toEmails: params.toEmails,
       subject: `[Innovators Fund] New Request: ${formattedAmount} by ${params.requesterName}`,
       html,
+      text,
     });
   } catch (error: any) {
     console.error('Error sending request email:', error?.message || error);
@@ -288,11 +294,14 @@ export async function sendAuditStatusEmail(params: SendAuditStatusEmailParams) {
     </html>
   `;
 
+  const text = `Innovators Fund Request ${params.status.toUpperCase()}\n\nAmount: ${formattedAmount}\nRequester: ${params.requesterName}\nReviewed By: ${params.reviewerName}\nUpdated Pool Balance: ${formattedNewBalance}${params.adminNotes ? `\nRemarks: ${params.adminNotes}` : ''}\n\nView details: ${requestUrl}`;
+
   try {
     return await dispatchEmail({
       toEmails: params.toEmails,
       subject: `[Innovators Fund] Request ${params.status.toUpperCase()}: ${formattedAmount} for ${params.requesterName}`,
       html,
+      text,
     });
   } catch (error: any) {
     console.error('Error sending audit status email:', error?.message || error);
@@ -397,11 +406,14 @@ export async function sendPoolDepositEmail(params: SendPoolDepositEmailParams) {
     </html>
   `;
 
+  const text = `Innovators Fund Deposit\n\n+${formattedDeposit} has been deposited to the pool by Admin ${params.adminName}.\nNew Available Balance: ${formattedAvailable}\nCumulative Capital Pool: ${formattedTotalInitial}\n\nView details: ${BASE_URL}/?tab=dashboard`;
+
   try {
     return await dispatchEmail({
       toEmails: params.toEmails,
       subject: `[Innovators Fund] +${formattedDeposit} Deposited by ${params.adminName}`,
       html,
+      text,
     });
   } catch (error: any) {
     console.error('Error sending deposit email:', error?.message || error);
