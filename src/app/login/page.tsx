@@ -18,6 +18,10 @@ import {
   EyeOff,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 
 function LoginContent() {
   const router = useRouter();
@@ -206,153 +210,155 @@ function LoginContent() {
     const isAdmin = tokenMember.role === 'admin';
 
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-50 px-4 py-12 dark:bg-zinc-950 sm:px-6 lg:px-8">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
         <div className="w-full max-w-md space-y-6">
           {/* Brand */}
           <div className="text-center">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white shadow-lg shadow-emerald-500/25">
-              <Key className="h-7 w-7" />
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-border bg-card p-1 shadow-sm">
+              <img
+                src="/logo.jpg"
+                alt="Team Innovators"
+                className="h-full w-full object-contain rounded-xl"
+              />
             </div>
-            <div className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
-              <Sparkles className="h-3.5 w-3.5 text-emerald-600" />
-              <span>Direct Link Activation</span>
+            <div className="mt-4 flex items-center justify-center">
+              <Badge variant="outline" className="gap-1.5 py-0.5 px-2.5">
+                <Sparkles className="h-3 w-3 text-emerald-500" />
+                <span>Direct Link Activation</span>
+              </Badge>
             </div>
-            <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-white">
+            <h1 className="mt-2 text-2xl font-bold tracking-tight text-foreground">
               Welcome, {tokenMember.name}!
             </h1>
-            <p className="mt-1 text-xs text-zinc-500">
+            <p className="mt-1 text-xs text-muted-foreground">
               Please set your personal password to activate your account.
             </p>
           </div>
 
           {/* Setup Card */}
-          <div className="rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-xl dark:border-zinc-800 dark:bg-zinc-900 sm:p-8">
-            <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50/80 p-3 text-xs text-amber-800 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-300">
-              <div className="font-semibold flex items-center gap-1.5">
-                <Lock className="h-3.5 w-3.5" />
-                <span>One-Time Setup Link Notice</span>
-              </div>
-              <p className="mt-1 text-[11px] opacity-90">
-                Once you save your new password, this direct link will <strong>expire permanently</strong> for security. You will then sign in using your username and password.
-              </p>
-            </div>
-
-            {error && (
-              <div className="mb-4 flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-medium text-red-800 dark:border-red-900/50 dark:bg-red-950/50 dark:text-red-300">
-                <AlertCircle className="h-4 w-4 shrink-0" />
-                <span>{error}</span>
-              </div>
-            )}
-
-            <form onSubmit={handleCompleteSetup} className="space-y-4">
-              {/* Member ID and Locked Role Info */}
-              <div className="flex items-center justify-between rounded-xl bg-zinc-50 p-3 border border-zinc-200 dark:bg-zinc-800/60 dark:border-zinc-700">
-                <div>
-                  <div className="text-[10px] font-semibold uppercase text-zinc-400">
-                    Username / Member ID
-                  </div>
-                  <div className="font-mono text-xs font-bold text-zinc-800 dark:text-zinc-200">
-                    @{tokenMember.id}
-                  </div>
+          <Card>
+            <CardContent className="p-6 sm:p-8">
+              <div className="mb-4 rounded-lg border border-amber-500/20 bg-amber-500/10 p-3 text-xs text-amber-700 dark:text-amber-400">
+                <div className="font-semibold flex items-center gap-1.5">
+                  <Lock className="h-3.5 w-3.5" />
+                  <span>One-Time Setup Link Notice</span>
                 </div>
-                <div className="text-right">
-                  <div className="text-[10px] font-semibold uppercase text-zinc-400 flex items-center gap-1 justify-end">
-                    <Lock className="h-2.5 w-2.5" />
-                    <span>Assigned Role</span>
-                  </div>
-                  <span
-                    className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
-                      isAdmin
-                        ? 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300'
-                        : 'bg-zinc-200 text-zinc-800 dark:bg-zinc-700 dark:text-zinc-200'
-                    }`}
-                  >
-                    {isAdmin ? '👑 Administrator' : '🚀 Member'}
-                  </span>
-                </div>
-              </div>
-
-              <div className="text-[11px] text-zinc-500 bg-zinc-100/70 dark:bg-zinc-800/40 p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-700/50 flex items-center gap-2">
-                <Shield className="h-4 w-4 text-purple-600 shrink-0" />
-                <span>Your account role was assigned by the admin and cannot be changed during setup.</span>
-              </div>
-
-              {/* Password */}
-              <div>
-                <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
-                  Create Your Password * (min 4 characters)
-                </label>
-                <div className="relative mt-1.5">
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    required
-                    minLength={4}
-                    placeholder="Enter your personal password"
-                    value={setupPassword}
-                    onChange={(e) => setSetupPassword(e.target.value)}
-                    className="w-full rounded-xl border border-zinc-300 bg-white pr-10 pl-3.5 py-2.5 text-sm text-zinc-900 outline-none transition focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3 text-zinc-400 hover:text-zinc-600"
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </button>
-                </div>
-              </div>
-
-              {/* Confirm Password */}
-              <div>
-                <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
-                  Confirm Password *
-                </label>
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  required
-                  placeholder="Re-enter your password"
-                  value={setupConfirm}
-                  onChange={(e) => setSetupConfirm(e.target.value)}
-                  className="mt-1.5 w-full rounded-xl border border-zinc-300 bg-white px-3.5 py-2.5 text-sm text-zinc-900 outline-none transition focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
-                />
-              </div>
-
-              {/* Notification Email */}
-              <div>
-                <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
-                  Notification Email (Resend Alerts)
-                </label>
-                <div className="relative mt-1.5">
-                  <Mail className="absolute left-3.5 top-3 h-4 w-4 text-zinc-400" />
-                  <input
-                    type="email"
-                    placeholder="your.email@example.com"
-                    value={setupEmail}
-                    onChange={(e) => setSetupEmail(e.target.value)}
-                    className="w-full rounded-xl border border-zinc-300 bg-white pl-9 pr-3.5 py-2.5 text-sm text-zinc-900 outline-none transition focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
-                  />
-                </div>
-                <p className="mt-1 text-[11px] text-zinc-500">
-                  * Receives real-time email notifications of new fund requests and pool balance updates.
+                <p className="mt-1 text-[11px] opacity-90">
+                  Once you save your new password, this direct link will <strong>expire permanently</strong> for security. You will then sign in using your username and password.
                 </p>
               </div>
 
-              <button
-                type="submit"
-                disabled={setupLoading || setupPassword.length < 4}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3 text-xs font-bold text-white shadow-md shadow-emerald-600/25 transition hover:bg-emerald-500 disabled:opacity-50"
-              >
-                {setupLoading ? (
-                  <span>Saving &amp; Expiring Link...</span>
-                ) : (
-                  <>
-                    <Check className="h-4 w-4" />
-                    <span>Save Password &amp; Enter Dashboard</span>
-                  </>
-                )}
-              </button>
-            </form>
-          </div>
+              {error && (
+                <div className="mb-4 flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 p-3 text-xs font-medium text-destructive">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  <span>{error}</span>
+                </div>
+              )}
+
+              <form onSubmit={handleCompleteSetup} className="space-y-4">
+                {/* Member ID and Locked Role Info */}
+                <div className="flex items-center justify-between rounded-lg bg-muted/50 p-3 border border-border">
+                  <div>
+                    <div className="text-[10px] font-semibold uppercase text-muted-foreground">
+                      Username / Member ID
+                    </div>
+                    <div className="font-mono text-xs font-bold text-foreground">
+                      @{tokenMember.id}
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-[10px] font-semibold uppercase text-muted-foreground flex items-center gap-1 justify-end">
+                      <Lock className="h-2.5 w-2.5" />
+                      <span>Assigned Role</span>
+                    </div>
+                    <Badge variant={isAdmin ? 'admin' : 'secondary'} className="mt-0.5">
+                      {isAdmin ? 'Admin' : 'Member'}
+                    </Badge>
+                  </div>
+                </div>
+
+                <div className="text-[11px] text-muted-foreground bg-muted/30 p-2.5 rounded-lg border border-border flex items-center gap-2">
+                  <Shield className="h-4 w-4 text-purple-600 shrink-0" />
+                  <span>Your account role was assigned by the admin and cannot be changed during setup.</span>
+                </div>
+
+                {/* Password */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-foreground">
+                    Create Your Password * (min 4 characters)
+                  </label>
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      minLength={4}
+                      placeholder="Enter your personal password"
+                      value={setupPassword}
+                      onChange={(e) => setSetupPassword(e.target.value)}
+                      className="pr-10 text-xs"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-2.5 text-muted-foreground hover:text-foreground"
+                    >
+                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    </button>
+                  </div>
+                </div>
+
+                {/* Confirm Password */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-foreground">
+                    Confirm Password *
+                  </label>
+                  <Input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    placeholder="Re-enter your password"
+                    value={setupConfirm}
+                    onChange={(e) => setSetupConfirm(e.target.value)}
+                    className="text-xs"
+                  />
+                </div>
+
+                {/* Notification Email */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-foreground">
+                    Notification Email (Resend Alerts)
+                  </label>
+                  <div className="relative">
+                    <Mail className="absolute left-3.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      type="email"
+                      placeholder="your.email@example.com"
+                      value={setupEmail}
+                      onChange={(e) => setSetupEmail(e.target.value)}
+                      className="pl-9 text-xs"
+                    />
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    Receives real-time email notifications of fund requests and pool balance updates.
+                  </p>
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={setupLoading || setupPassword.length < 4}
+                  className="w-full"
+                >
+                  {setupLoading ? (
+                    <span>Saving &amp; Expiring Link...</span>
+                  ) : (
+                    <>
+                      <Check className="mr-1.5 h-4 w-4" />
+                      <span>Save Password &amp; Enter Dashboard</span>
+                    </>
+                  )}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
         </div>
       </div>
     );
@@ -361,150 +367,166 @@ function LoginContent() {
   // FLOW A2: Setup Success Animation
   if (setupSuccess) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50 p-4 dark:bg-zinc-950">
-        <div className="text-center max-w-sm rounded-2xl border border-emerald-200 bg-white p-8 shadow-xl dark:border-emerald-900/50 dark:bg-zinc-900">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400">
-            <CheckCircle2 className="h-8 w-8" />
+      <div className="flex min-h-screen items-center justify-center bg-background p-4">
+        <Card className="text-center max-w-sm p-8">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+            <CheckCircle2 className="h-6 w-6" />
           </div>
-          <h2 className="mt-4 text-lg font-bold text-zinc-900 dark:text-white">
+          <h2 className="mt-4 text-base font-semibold text-foreground">
             Password Set Successfully!
           </h2>
-          <p className="mt-1 text-xs text-zinc-500">
+          <p className="mt-1 text-xs text-muted-foreground">
             Your direct link has expired. Redirecting you to the Innovators Fund dashboard...
           </p>
-        </div>
+        </Card>
       </div>
     );
   }
 
   // FLOW B: Standard Login or Expired Token Fallback
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-50 px-4 py-12 dark:bg-zinc-950 sm:px-6 lg:px-8">
-      <div className="w-full max-w-md space-y-8">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4 py-12 sm:px-6 lg:px-8">
+      <div className="w-full max-w-md space-y-6">
         {/* Brand */}
         <div className="text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white shadow-lg shadow-emerald-500/25">
-            <Wallet className="h-7 w-7" />
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-border bg-card p-1 shadow-sm">
+            <img
+              src="/logo.jpg"
+              alt="Team Innovators"
+              className="h-full w-full object-contain rounded-xl"
+            />
           </div>
-          <h1 className="mt-4 text-2xl font-extrabold tracking-tight text-zinc-900 dark:text-white">
+          <h1 className="mt-4 text-2xl font-bold tracking-tight text-foreground">
             Innovators Fund
           </h1>
-          <p className="mt-1 text-xs text-zinc-500">
+          <p className="mt-1 text-xs text-muted-foreground">
             ₹1,50,000 RS Initial Capital Pool • Managed &amp; Audited
           </p>
         </div>
 
         {/* Card */}
-        <div className="rounded-2xl border border-zinc-200/80 bg-white p-6 shadow-xl dark:border-zinc-800 dark:bg-zinc-900 sm:p-8">
-          {error && (
-            <div className="mb-4 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs font-medium text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/50 dark:text-amber-200">
-              <div className="flex items-center gap-2 font-bold">
-                <AlertCircle className="h-4 w-4 text-amber-600 shrink-0" />
-                <span>Notice</span>
+        <Card>
+          <CardContent className="p-6 sm:p-8">
+            {error && (
+              <div className="mb-4 rounded-lg border border-amber-500/20 bg-amber-500/10 p-3 text-xs font-medium text-amber-700 dark:text-amber-300">
+                <div className="flex items-center gap-2 font-semibold">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  <span>Notice</span>
+                </div>
+                <p className="mt-1 text-[11px]">{error}</p>
               </div>
-              <p className="mt-1 text-[11px]">{error}</p>
-            </div>
-          )}
+            )}
 
-          {/* Credentials Form */}
-          <form onSubmit={handleCredentialsLogin} className="space-y-4">
-            <div>
-              <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
-                Username / Member ID
-              </label>
-              <input
-                type="text"
-                required
-                placeholder="e.g. prattay, snehansh, somoy, sraman, barta"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="mt-1.5 w-full rounded-xl border border-zinc-300 bg-white px-3.5 py-2.5 text-sm text-zinc-900 outline-none transition focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
-              />
+            {/* Credentials Form */}
+            <form onSubmit={handleCredentialsLogin} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-foreground">
+                  Username / Member ID
+                </label>
+                <Input
+                  type="text"
+                  required
+                  placeholder="e.g. prattay, snehansh, somoy, sraman, barta"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="text-xs"
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-foreground">
+                  Password
+                </label>
+                <Input
+                  type="password"
+                  required
+                  placeholder="Enter password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="text-xs"
+                />
+              </div>
+
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full"
+              >
+                <span>{loading ? 'Signing in...' : 'Sign In with Password'}</span>
+                <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+              </Button>
+            </form>
+
+            {/* Divider */}
+            <div className="relative my-6 text-center">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-border" />
+              </div>
+              <span className="relative bg-card px-3 text-[11px] font-semibold uppercase text-muted-foreground">
+                Or Quick Access Switch
+              </span>
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
-                Password
-              </label>
-              <input
-                type="password"
-                required
-                placeholder="Enter password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-1.5 w-full rounded-xl border border-zinc-300 bg-white px-3.5 py-2.5 text-sm text-zinc-900 outline-none transition focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
-              />
+            {/* Quick Member Login Buttons */}
+            <div className="space-y-1.5">
+              <div className="text-[11px] font-medium text-muted-foreground pb-1">
+                Select team member:
+              </div>
+              <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleDirectSwitch('prattay')}
+                  className="justify-between border-purple-500/30 hover:border-purple-500/60 hover:bg-purple-500/5 font-medium text-xs"
+                >
+                  <span className="font-semibold text-foreground">Prattay</span>
+                  <Badge variant="admin" className="text-[9px] py-0 px-1.5">Admin</Badge>
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleDirectSwitch('snehansh')}
+                  className="justify-between border-purple-500/30 hover:border-purple-500/60 hover:bg-purple-500/5 font-medium text-xs"
+                >
+                  <span className="font-semibold text-foreground">Snehansh</span>
+                  <Badge variant="admin" className="text-[9px] py-0 px-1.5">Admin</Badge>
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleDirectSwitch('somoy')}
+                  className="justify-between font-medium text-xs"
+                >
+                  <span className="text-foreground">Somoy</span>
+                  <Badge variant="secondary" className="text-[9px] py-0 px-1.5">Member</Badge>
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleDirectSwitch('sraman')}
+                  className="justify-between font-medium text-xs"
+                >
+                  <span className="text-foreground">Sraman</span>
+                  <Badge variant="secondary" className="text-[9px] py-0 px-1.5">Member</Badge>
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleDirectSwitch('barta')}
+                  className="col-span-1 sm:col-span-2 justify-between font-medium text-xs"
+                >
+                  <span className="text-foreground">Barta</span>
+                  <Badge variant="secondary" className="text-[9px] py-0 px-1.5">Member</Badge>
+                </Button>
+              </div>
             </div>
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-900 py-2.5 text-xs font-bold text-white shadow-md transition hover:bg-zinc-800 disabled:opacity-50 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
-            >
-              <span>{loading ? 'Signing in...' : 'Sign In with Password'}</span>
-              <ArrowRight className="h-3.5 w-3.5" />
-            </button>
-          </form>
-
-          {/* Divider */}
-          <div className="relative my-6 text-center">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-zinc-200 dark:border-zinc-800" />
-            </div>
-            <span className="relative bg-white px-3 text-[11px] font-semibold uppercase text-zinc-400 dark:bg-zinc-900">
-              Or 1-Click Fast Switch
-            </span>
-          </div>
-
-          {/* Quick Member Login Buttons */}
-          <div className="space-y-1.5">
-            <div className="text-[11px] font-semibold text-zinc-500 pb-1">
-              Select team member to sign in:
-            </div>
-            <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-              <button
-                type="button"
-                onClick={() => handleDirectSwitch('prattay')}
-                className="flex items-center justify-between rounded-xl border border-purple-200 bg-purple-50/50 p-2 text-left text-xs font-semibold text-purple-900 transition hover:bg-purple-100 dark:border-purple-900/50 dark:bg-purple-950/30 dark:text-purple-300"
-              >
-                <span>👑 Prattay</span>
-                <span className="text-[10px] opacity-70">Admin</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDirectSwitch('snehansh')}
-                className="flex items-center justify-between rounded-xl border border-purple-200 bg-purple-50/50 p-2 text-left text-xs font-semibold text-purple-900 transition hover:bg-purple-100 dark:border-purple-900/50 dark:bg-purple-950/30 dark:text-purple-300"
-              >
-                <span>👑 Snehansh</span>
-                <span className="text-[10px] opacity-70">Admin</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDirectSwitch('somoy')}
-                className="flex items-center justify-between rounded-xl border border-zinc-200 bg-zinc-50 p-2 text-left text-xs font-semibold text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-800/60 dark:text-zinc-300"
-              >
-                <span>🚀 Somoy</span>
-                <span className="text-[10px] opacity-70">Member</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDirectSwitch('sraman')}
-                className="flex items-center justify-between rounded-xl border border-zinc-200 bg-zinc-50 p-2 text-left text-xs font-semibold text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-800/60 dark:text-zinc-300"
-              >
-                <span>🚀 Sraman</span>
-                <span className="text-[10px] opacity-70">Member</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDirectSwitch('barta')}
-                className="col-span-1 sm:col-span-2 flex items-center justify-between rounded-xl border border-zinc-200 bg-zinc-50 p-2 text-left text-xs font-semibold text-zinc-700 transition hover:bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-800/60 dark:text-zinc-300"
-              >
-                <span>🚀 Barta</span>
-                <span className="text-[10px] opacity-70">Member</span>
-              </button>
-            </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

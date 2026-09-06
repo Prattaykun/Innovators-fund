@@ -1,4 +1,4 @@
-﻿export type MemberRole = 'admin' | 'member';
+export type MemberRole = 'admin' | 'member';
 
 export interface Member {
   id: string;
@@ -6,6 +6,7 @@ export interface Member {
   role: MemberRole;
   password_hash?: string;
   direct_token: string;
+  token_used?: boolean;
   email: string | null;
   is_active: boolean;
   created_at: string;

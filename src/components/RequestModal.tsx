@@ -1,8 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import { X, Sparkles, AlertCircle, CheckCircle2, Wallet } from 'lucide-react';
+import { X, AlertCircle, Plus, Shield } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 
 interface RequestModalProps {
   isOpen: boolean;
@@ -92,10 +95,10 @@ export default function RequestModal({
         throw new Error(data.error || 'Failed to submit fund request');
       }
 
-      // Trigger celebratory confetti
+      // Trigger celebration
       confetti({
-        particleCount: 80,
-        spread: 70,
+        particleCount: 60,
+        spread: 60,
         origin: { y: 0.6 },
       });
 
@@ -113,34 +116,34 @@ export default function RequestModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-in fade-in">
-      <div className="relative w-full max-w-lg rounded-2xl border border-zinc-200 bg-white p-6 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in">
+      <div className="relative w-full max-w-lg rounded-xl border border-border bg-popover p-6 shadow-xl text-popover-foreground">
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800"
+          className="absolute right-4 top-4 rounded-md p-1.5 text-muted-foreground hover:bg-accent"
         >
-          <X className="h-5 w-5" />
+          <X className="h-4 w-4" />
         </button>
 
         {/* Modal Header */}
-        <div className="flex items-center gap-3 border-b border-zinc-100 pb-4 dark:border-zinc-800">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">
-            <Sparkles className="h-5 w-5" />
+        <div className="border-b border-border pb-4">
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="text-xs">
+              Disbursement Request
+            </Badge>
           </div>
-          <div>
-            <h2 className="text-lg font-bold text-zinc-900 dark:text-white">
-              Raise Fund Request
-            </h2>
-            <p className="text-xs text-zinc-500">
-              Submitted by <span className="font-semibold text-zinc-700 dark:text-zinc-300">{currentUserName}</span> for admin review
-            </p>
-          </div>
+          <h2 className="mt-1.5 text-lg font-bold text-foreground">
+            Raise Fund Request
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            Initiated by <span className="font-semibold text-foreground">{currentUserName}</span> for administrator review
+          </p>
         </div>
 
         {/* Error Notification */}
         {error && (
-          <div className="mt-4 flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-medium text-red-800 dark:border-red-900/50 dark:bg-red-950/50 dark:text-red-300">
+          <div className="mt-4 flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-xs font-medium text-destructive">
             <AlertCircle className="h-4 w-4 shrink-0" />
             <span>{error}</span>
           </div>
@@ -149,16 +152,15 @@ export default function RequestModal({
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           {/* Title */}
           <div>
-            <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
-              Request Title / Purpose *
+            <label className="block text-xs font-medium text-foreground">
+              Request Title / Expense Item *
             </label>
-            <input
-              type="text"
+            <Input
               required
-              placeholder="e.g., Cloud GPU Server for AI Prototype"
+              placeholder="e.g. Cloud GPU Compute Server for Model Inference"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="mt-1.5 w-full rounded-xl border border-zinc-300 bg-white px-3.5 py-2.5 text-sm text-zinc-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+              className="mt-1.5 text-xs"
             />
           </div>
 
@@ -166,14 +168,14 @@ export default function RequestModal({
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             {/* Amount */}
             <div>
-              <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+              <label className="block text-xs font-medium text-foreground">
                 Amount (₹ INR) *
               </label>
               <div className="relative mt-1.5">
-                <span className="absolute left-3.5 top-2.5 text-sm font-bold text-zinc-400">
+                <span className="absolute left-3 top-2 text-xs font-semibold text-muted-foreground">
                   ₹
                 </span>
-                <input
+                <Input
                   type="number"
                   required
                   min="1"
@@ -181,10 +183,8 @@ export default function RequestModal({
                   placeholder="5000"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className={`w-full rounded-xl border bg-white pl-8 pr-3.5 py-2.5 text-sm font-semibold outline-none transition dark:bg-zinc-800 ${
-                    isOverBudget
-                      ? 'border-red-500 text-red-600 focus:ring-red-500/20'
-                      : 'border-zinc-300 text-zinc-900 focus:border-emerald-500 focus:ring-emerald-500/20 dark:border-zinc-700 dark:text-white'
+                  className={`pl-7 text-xs font-semibold tabular-nums ${
+                    isOverBudget ? 'border-destructive focus-visible:ring-destructive text-destructive' : ''
                   }`}
                 />
               </div>
@@ -192,13 +192,13 @@ export default function RequestModal({
 
             {/* Category */}
             <div>
-              <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
-                Category *
+              <label className="block text-xs font-medium text-foreground">
+                Expense Category *
               </label>
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="mt-1.5 w-full rounded-xl border border-zinc-300 bg-white px-3 py-2.5 text-sm text-zinc-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+                className="mt-1.5 w-full rounded-md border border-input bg-background px-3 py-2 text-xs text-foreground outline-hidden focus-visible:ring-1 focus-visible:ring-ring"
               >
                 {CATEGORIES.map((cat) => (
                   <option key={cat} value={cat}>
@@ -210,22 +210,22 @@ export default function RequestModal({
           </div>
 
           {/* Balance Preview Card */}
-          <div className="rounded-xl border border-zinc-200 bg-zinc-50 p-3 text-xs dark:border-zinc-800 dark:bg-zinc-800/60">
+          <div className="rounded-lg border border-border bg-muted/40 p-3 text-xs space-y-1.5">
             <div className="flex items-center justify-between">
-              <span className="text-zinc-500">Current Available Pool:</span>
-              <span className="font-bold text-zinc-900 dark:text-white">
+              <span className="text-muted-foreground">Current Available Pool:</span>
+              <span className="font-semibold tabular-nums text-foreground">
                 {formatINR(availableBalance)}
               </span>
             </div>
             {numAmount > 0 && (
-              <div className="mt-1.5 flex items-center justify-between border-t border-zinc-200 pt-1.5 dark:border-zinc-700">
-                <span className="text-zinc-500">Projected Balance After Approval:</span>
+              <div className="flex items-center justify-between border-t border-border pt-1.5">
+                <span className="text-muted-foreground">Projected Remaining:</span>
                 <span
-                  className={`font-bold ${
-                    isOverBudget ? 'text-red-600' : 'text-emerald-600 dark:text-emerald-400'
+                  className={`font-semibold tabular-nums ${
+                    isOverBudget ? 'text-destructive' : 'text-emerald-600 dark:text-emerald-400'
                   }`}
                 >
-                  {isOverBudget ? 'Exceeds Available Pool!' : formatINR(projectedBalance)}
+                  {isOverBudget ? 'Exceeds Available Pool' : formatINR(projectedBalance)}
                 </span>
               </div>
             )}
@@ -233,46 +233,48 @@ export default function RequestModal({
 
           {/* Reason / Justification */}
           <div>
-            <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
-              Detailed Reason &amp; Impact *
+            <label className="block text-xs font-medium text-foreground">
+              Detailed Reason &amp; Deliverables *
             </label>
             <textarea
               required
               rows={3}
-              placeholder="Explain why this fund is required, what deliverables it produces, and how it will be spent..."
+              placeholder="Explain why this disbursement is necessary, specific line items, and deliverables produced..."
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              className="mt-1.5 w-full rounded-xl border border-zinc-300 bg-white p-3 text-sm text-zinc-900 outline-none transition focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+              className="mt-1.5 w-full rounded-md border border-input bg-background p-2.5 text-xs text-foreground outline-hidden focus-visible:ring-1 focus-visible:ring-ring"
             />
           </div>
 
-          <p className="text-[11px] text-zinc-500">
-            * Once submitted, an audit log will be created and an email alert will be sent via Resend to admins Snehansh and Prattay for review.
+          <p className="text-[11px] text-muted-foreground">
+            Submitting records a permanent audit entry and sends instant email alerts via Resend to administrators Snehansh and Prattay.
           </p>
 
           {/* Submit Actions */}
-          <div className="flex items-center justify-end gap-3 pt-2">
-            <button
+          <div className="flex items-center justify-end gap-2 pt-2">
+            <Button
               type="button"
+              variant="outline"
+              size="sm"
               onClick={onClose}
-              className="rounded-xl px-4 py-2.5 text-xs font-semibold text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
+              size="sm"
               disabled={loading || isOverBudget || numAmount <= 0}
-              className="flex items-center gap-2 rounded-xl bg-emerald-600 px-5 py-2.5 text-xs font-bold text-white shadow-md shadow-emerald-600/20 transition hover:bg-emerald-500 disabled:opacity-50"
+              className="gap-1.5"
             >
               {loading ? (
-                <span>Submitting &amp; Notifying...</span>
+                <span>Submitting...</span>
               ) : (
                 <>
-                  <Sparkles className="h-3.5 w-3.5" />
+                  <Plus className="h-3.5 w-3.5" />
                   <span>Submit Request</span>
                 </>
               )}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

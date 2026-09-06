@@ -1,25 +1,22 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import {
   Shield,
   User,
-  Wallet,
-  FileText,
-  History,
-  Link as LinkIcon,
   Settings,
   LogOut,
-  Users,
   Menu,
   X,
   ChevronDown,
-  Sparkles,
-  Mail,
   Check,
   Copy,
+  Plus,
 } from 'lucide-react';
 import { MemberRole } from '@/lib/types';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 interface NavbarProps {
   currentUser: {
@@ -71,131 +68,127 @@ export default function Navbar({
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-zinc-200/80 bg-white/90 backdrop-blur-md dark:border-zinc-800 dark:bg-zinc-950/90">
+    <header className="sticky top-0 z-40 w-full border-b border-border/80 bg-background/95 backdrop-blur-xs">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Brand */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           <div
             onClick={() => setActiveTab('dashboard')}
-            className="flex cursor-pointer items-center gap-2.5 transition hover:opacity-90"
+            className="flex cursor-pointer items-center gap-3 transition-opacity hover:opacity-90"
           >
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white shadow-md shadow-emerald-500/20">
-              <Wallet className="h-5 w-5" />
+            <div className="relative h-9 w-9 shrink-0 overflow-hidden rounded-lg border border-border bg-white shadow-2xs dark:bg-zinc-900">
+              <img
+                src="/logo.jpg"
+                alt="Team Innovators Logo"
+                className="h-full w-full object-contain"
+              />
             </div>
             <div>
-              <div className="flex items-center gap-1.5 font-bold tracking-tight text-zinc-900 dark:text-white">
-                <span>Innovators Fund</span>
-                <span className="hidden rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 sm:inline-block">
-                  ₹1.5L Pool
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-bold tracking-tight text-foreground">
+                  Team Innovators
                 </span>
+                <Badge variant="outline" className="hidden text-[10px] font-semibold text-muted-foreground sm:inline-flex">
+                  ₹1.5L Pool
+                </Badge>
               </div>
-              <p className="text-[11px] font-medium text-zinc-500 dark:text-zinc-400">
-                Audited & Approved
+              <p className="text-[11px] font-medium text-muted-foreground">
+                Fund Governance &amp; Audit
               </p>
             </div>
           </div>
 
           {/* Balance Pill */}
-          <div className="hidden items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50/70 px-3 py-1 text-xs font-semibold text-emerald-800 dark:border-emerald-800/40 dark:bg-emerald-950/30 dark:text-emerald-300 md:flex">
-            <span className="h-2 w-2 animate-pulse rounded-full bg-emerald-500" />
-            <span>Balance: {formattedBalance}</span>
+          <div className="hidden items-center gap-2 rounded-full border border-border bg-muted/50 px-3 py-1 text-xs font-medium text-foreground md:flex">
+            <span className="h-2 w-2 rounded-full bg-emerald-500" />
+            <span className="text-muted-foreground">Available:</span>
+            <span className="font-semibold tabular-nums text-foreground">{formattedBalance}</span>
           </div>
         </div>
 
         {/* Desktop Navigation */}
         <nav className="hidden items-center gap-1 md:flex">
-          <button
+          <Button
+            variant={activeTab === 'dashboard' ? 'secondary' : 'ghost'}
+            size="sm"
             onClick={() => setActiveTab('dashboard')}
-            className={`rounded-lg px-3.5 py-2 text-sm font-medium transition ${
-              activeTab === 'dashboard'
-                ? 'bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-white'
-                : 'text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-white'
-            }`}
+            className="text-xs font-medium"
           >
             Dashboard
-          </button>
-          <button
+          </Button>
+          <Button
+            variant={activeTab === 'requests' ? 'secondary' : 'ghost'}
+            size="sm"
             onClick={() => setActiveTab('requests')}
-            className={`rounded-lg px-3.5 py-2 text-sm font-medium transition ${
-              activeTab === 'requests'
-                ? 'bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-white'
-                : 'text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-white'
-            }`}
+            className="text-xs font-medium"
           >
-            Fund Requests
-          </button>
-          <button
+            Requests
+          </Button>
+          <Button
+            variant={activeTab === 'audits' ? 'secondary' : 'ghost'}
+            size="sm"
             onClick={() => setActiveTab('audits')}
-            className={`rounded-lg px-3.5 py-2 text-sm font-medium transition ${
-              activeTab === 'audits'
-                ? 'bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-white'
-                : 'text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-white'
-            }`}
+            className="text-xs font-medium"
           >
             Audit Trail
-          </button>
-          <button
+          </Button>
+          <Button
+            variant={activeTab === 'links' ? 'secondary' : 'ghost'}
+            size="sm"
             onClick={() => setActiveTab('links')}
-            className={`rounded-lg px-3.5 py-2 text-sm font-medium transition ${
-              activeTab === 'links'
-                ? 'bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-white'
-                : 'text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-white'
-            }`}
+            className="text-xs font-medium"
           >
-            Member Links
-          </button>
+            Members
+          </Button>
 
-          {/* Admin Tab - Only for Snehansh and Prattay */}
+          {/* Admin Tab - Snehansh & Prattay */}
           {isAdmin && (
-            <button
+            <Button
+              variant={activeTab === 'admin' ? 'secondary' : 'ghost'}
+              size="sm"
               onClick={() => setActiveTab('admin')}
-              className={`flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-sm font-medium transition ${
-                activeTab === 'admin'
-                  ? 'bg-purple-100 text-purple-900 dark:bg-purple-950/70 dark:text-purple-200'
-                  : 'text-purple-700 hover:bg-purple-50 dark:text-purple-400 dark:hover:bg-purple-950/40'
-              }`}
+              className="gap-1.5 text-xs font-medium text-foreground"
             >
-              <Shield className="h-4 w-4" />
+              <Shield className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
               <span>Admin Portal</span>
-            </button>
+            </Button>
           )}
         </nav>
 
         {/* User Badge & Actions */}
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Quick Request Button */}
-          <button
+          <Button
+            size="sm"
             onClick={onOpenRequestModal}
-            className="flex items-center gap-1.5 rounded-lg bg-zinc-900 px-3.5 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-zinc-800 dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100"
+            className="h-8 gap-1.5 px-3 text-xs font-semibold"
           >
-            <Sparkles className="h-3.5 w-3.5 text-amber-400" />
+            <Plus className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Request Funds</span>
             <span className="sm:hidden">Request</span>
-          </button>
+          </Button>
 
           {/* Current User Dropdown */}
           {currentUser ? (
             <div className="relative">
               <button
                 onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                className="flex items-center gap-2 rounded-lg border border-zinc-200 bg-white p-1.5 text-left text-xs font-medium shadow-sm transition hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800"
+                className="flex items-center gap-2 rounded-lg border border-border bg-background p-1.5 text-left text-xs font-medium shadow-2xs transition-colors hover:bg-accent"
               >
                 <div
-                  className={`flex h-7 w-7 items-center justify-center rounded-md font-bold uppercase text-white ${
-                    isAdmin ? 'bg-purple-600' : 'bg-zinc-700'
-                  }`}
+                  className="flex h-7 w-7 items-center justify-center rounded-md font-bold uppercase text-white bg-zinc-800 dark:bg-zinc-700"
                 >
                   {currentUser.name.charAt(0)}
                 </div>
                 <div className="hidden text-left lg:block">
-                  <div className="font-semibold text-zinc-900 dark:text-white leading-tight">
+                  <div className="font-semibold text-foreground leading-tight">
                     {currentUser.name}
                   </div>
-                  <div className="text-[10px] text-zinc-500">
-                    {isAdmin ? 'Admin' : 'Member'}
+                  <div className="text-[10px] text-muted-foreground capitalize">
+                    {currentUser.role}
                   </div>
                 </div>
-                <ChevronDown className="h-3.5 w-3.5 text-zinc-400" />
+                <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
               </button>
 
               {userDropdownOpen && (
@@ -204,25 +197,22 @@ export default function Navbar({
                     className="fixed inset-0 z-40"
                     onClick={() => setUserDropdownOpen(false)}
                   />
-                  <div className="absolute right-0 z-50 mt-2 w-64 rounded-xl border border-zinc-200 bg-white p-2 shadow-xl dark:border-zinc-800 dark:bg-zinc-900">
+                  <div className="absolute right-0 z-50 mt-2 w-64 rounded-xl border border-border bg-popover p-2 text-popover-foreground shadow-lg animate-in fade-in">
                     {/* User Header */}
-                    <div className="border-b border-zinc-100 p-2 dark:border-zinc-800">
+                    <div className="border-b border-border/80 p-2">
                       <div className="flex items-center justify-between">
-                        <span className="font-semibold text-zinc-900 dark:text-white">
+                        <span className="font-semibold text-foreground">
                           {currentUser.name}
                         </span>
-                        <span
-                          className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                            isAdmin
-                              ? 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300'
-                              : 'bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-300'
-                          }`}
+                        <Badge
+                          variant={isAdmin ? 'admin' : 'secondary'}
+                          className="text-[10px] uppercase font-semibold"
                         >
-                          {currentUser.role.toUpperCase()}
-                        </span>
+                          {currentUser.role}
+                        </Badge>
                       </div>
-                      <p className="mt-1 truncate text-xs text-zinc-500">
-                        {currentUser.email || 'No email set (click settings)'}
+                      <p className="mt-1 truncate text-xs text-muted-foreground">
+                        {currentUser.email || 'No notification email set'}
                       </p>
                     </div>
 
@@ -231,14 +221,14 @@ export default function Navbar({
                       {currentUser.directToken && (
                         <button
                           onClick={copyMyDirectLink}
-                          className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium text-zinc-700 transition hover:bg-zinc-50 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                          className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium text-foreground transition-colors hover:bg-accent"
                         >
                           {copiedLink ? (
                             <Check className="h-3.5 w-3.5 text-emerald-600" />
                           ) : (
-                            <Copy className="h-3.5 w-3.5 text-zinc-400" />
+                            <Copy className="h-3.5 w-3.5 text-muted-foreground" />
                           )}
-                          <span>{copiedLink ? 'Direct Link Copied!' : 'Copy My Direct Link'}</span>
+                          <span>{copiedLink ? 'Link Copied' : 'Copy Direct Link'}</span>
                         </button>
                       )}
 
@@ -247,17 +237,17 @@ export default function Navbar({
                           setUserDropdownOpen(false);
                           onOpenProfileModal();
                         }}
-                        className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium text-zinc-700 transition hover:bg-zinc-50 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                        className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium text-foreground transition-colors hover:bg-accent"
                       >
-                        <Settings className="h-3.5 w-3.5 text-zinc-400" />
-                        <span>Profile & Email Settings</span>
+                        <Settings className="h-3.5 w-3.5 text-muted-foreground" />
+                        <span>Settings &amp; Email</span>
                       </button>
                     </div>
 
                     {/* Fast Switch Identity */}
-                    <div className="border-t border-zinc-100 pt-2 dark:border-zinc-800">
-                      <div className="px-2 pb-1 text-[10px] font-semibold uppercase text-zinc-400">
-                        Fast Switch Member
+                    <div className="border-t border-border/80 pt-2">
+                      <div className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                        Switch Member Profile
                       </div>
                       <div className="max-h-40 space-y-0.5 overflow-y-auto">
                         {allMembers.map((m) => (
@@ -267,29 +257,29 @@ export default function Navbar({
                               setUserDropdownOpen(false);
                               onSwitchUser(m.id);
                             }}
-                            className={`flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-xs transition ${
+                            className={`flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-xs transition-colors ${
                               m.id === currentUser.id
-                                ? 'bg-zinc-100 font-semibold text-zinc-900 dark:bg-zinc-800 dark:text-white'
-                                : 'text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800'
+                                ? 'bg-muted font-semibold text-foreground'
+                                : 'text-muted-foreground hover:bg-accent hover:text-foreground'
                             }`}
                           >
                             <span>{m.name}</span>
-                            <span className="text-[10px] opacity-70">
-                              {m.role === 'admin' ? '👑 Admin' : 'Member'}
-                            </span>
+                            <Badge variant={m.role === 'admin' ? 'admin' : 'outline'} className="text-[9px] py-0 px-1.5">
+                              {m.role}
+                            </Badge>
                           </button>
                         ))}
                       </div>
                     </div>
 
                     {/* Logout */}
-                    <div className="border-t border-zinc-100 pt-1 dark:border-zinc-800">
+                    <div className="border-t border-border/80 pt-1">
                       <button
                         onClick={() => {
                           setUserDropdownOpen(false);
                           onLogout();
                         }}
-                        className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium text-red-600 transition hover:bg-red-50 dark:hover:bg-red-950/30"
+                        className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-medium text-destructive transition-colors hover:bg-destructive/10"
                       >
                         <LogOut className="h-3.5 w-3.5" />
                         <span>Sign Out</span>
@@ -300,18 +290,20 @@ export default function Navbar({
               )}
             </div>
           ) : (
-            <button
+            <Button
+              size="sm"
+              variant="default"
               onClick={() => setActiveTab('links')}
-              className="rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-emerald-700"
+              className="text-xs"
             >
-              Log In
-            </button>
+              Sign In
+            </Button>
           )}
 
           {/* Mobile menu trigger */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="rounded-lg p-2 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800 md:hidden"
+            className="rounded-lg p-2 text-muted-foreground hover:bg-accent md:hidden"
           >
             {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -320,78 +312,73 @@ export default function Navbar({
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="border-b border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-950 md:hidden">
-          <div className="mb-3 flex items-center justify-between rounded-lg bg-emerald-50 p-2.5 dark:bg-emerald-950/40">
-            <span className="text-xs font-medium text-emerald-800 dark:text-emerald-300">
-              Available Pool Balance:
+        <div className="border-b border-border bg-background px-4 py-3 md:hidden">
+          <div className="mb-3 flex items-center justify-between rounded-lg bg-muted/60 p-2.5">
+            <span className="text-xs font-medium text-muted-foreground">
+              Available Balance:
             </span>
-            <span className="font-bold text-emerald-700 dark:text-emerald-400">
+            <span className="font-semibold tabular-nums text-foreground">
               {formattedBalance}
             </span>
           </div>
           <div className="grid grid-cols-2 gap-1.5">
-            <button
+            <Button
+              variant={activeTab === 'dashboard' ? 'secondary' : 'ghost'}
+              size="sm"
               onClick={() => {
                 setActiveTab('dashboard');
                 setMobileMenuOpen(false);
               }}
-              className={`rounded-lg p-2 text-left text-xs font-medium ${
-                activeTab === 'dashboard'
-                  ? 'bg-zinc-100 text-zinc-900 font-bold dark:bg-zinc-800 dark:text-white'
-                  : 'text-zinc-600 dark:text-zinc-400'
-              }`}
+              className="justify-start text-xs font-medium"
             >
               Dashboard
-            </button>
-            <button
+            </Button>
+            <Button
+              variant={activeTab === 'requests' ? 'secondary' : 'ghost'}
+              size="sm"
               onClick={() => {
                 setActiveTab('requests');
                 setMobileMenuOpen(false);
               }}
-              className={`rounded-lg p-2 text-left text-xs font-medium ${
-                activeTab === 'requests'
-                  ? 'bg-zinc-100 text-zinc-900 font-bold dark:bg-zinc-800 dark:text-white'
-                  : 'text-zinc-600 dark:text-zinc-400'
-              }`}
+              className="justify-start text-xs font-medium"
             >
-              Fund Requests
-            </button>
-            <button
+              Requests
+            </Button>
+            <Button
+              variant={activeTab === 'audits' ? 'secondary' : 'ghost'}
+              size="sm"
               onClick={() => {
                 setActiveTab('audits');
                 setMobileMenuOpen(false);
               }}
-              className={`rounded-lg p-2 text-left text-xs font-medium ${
-                activeTab === 'audits'
-                  ? 'bg-zinc-100 text-zinc-900 font-bold dark:bg-zinc-800 dark:text-white'
-                  : 'text-zinc-600 dark:text-zinc-400'
-              }`}
+              className="justify-start text-xs font-medium"
             >
               Audit Trail
-            </button>
-            <button
+            </Button>
+            <Button
+              variant={activeTab === 'links' ? 'secondary' : 'ghost'}
+              size="sm"
               onClick={() => {
                 setActiveTab('links');
                 setMobileMenuOpen(false);
               }}
-              className={`rounded-lg p-2 text-left text-xs font-medium ${
-                activeTab === 'links'
-                  ? 'bg-zinc-100 text-zinc-900 font-bold dark:bg-zinc-800 dark:text-white'
-                  : 'text-zinc-600 dark:text-zinc-400'
-              }`}
+              className="justify-start text-xs font-medium"
             >
-              Member Links
-            </button>
+              Members
+            </Button>
             {isAdmin && (
-              <button
+              <Button
+                variant={activeTab === 'admin' ? 'secondary' : 'outline'}
+                size="sm"
                 onClick={() => {
                   setActiveTab('admin');
                   setMobileMenuOpen(false);
                 }}
-                className={`col-span-2 rounded-lg p-2 text-left text-xs font-bold text-purple-700 bg-purple-50 dark:bg-purple-950/50 dark:text-purple-300`}
+                className="col-span-2 justify-start text-xs font-semibold"
               >
-                👑 Admin Portal (Snehansh & Prattay)
-              </button>
+                <Shield className="h-3.5 w-3.5 text-blue-600 mr-1" />
+                Admin Portal (Snehansh &amp; Prattay)
+              </Button>
             )}
           </div>
         </div>

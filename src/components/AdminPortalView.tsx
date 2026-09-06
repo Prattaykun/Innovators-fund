@@ -9,18 +9,19 @@ import {
   Copy,
   Check,
   CheckCircle2,
-  XCircle,
   AlertCircle,
   Mail,
   ChevronLeft,
   ChevronRight,
   RefreshCw,
-  Lock,
-  ExternalLink,
   Power,
-  Users,
+  RotateCw,
 } from 'lucide-react';
 import { Member, MemberRole } from '@/lib/types';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 
 interface AdminPortalViewProps {
   currentUserName: string;
@@ -114,6 +115,28 @@ export default function AdminPortalView({ currentUserName, onRefreshAll }: Admin
     }
   };
 
+  const handleRegenerateLink = async (memberId: string) => {
+    try {
+      const res = await fetch('/api/admin/members', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          memberId,
+          regenerateToken: true,
+        }),
+      });
+      if (res.ok) {
+        fetchMembers(page, search);
+        onRefreshAll();
+      } else {
+        const d = await res.json();
+        alert(d.error || 'Failed to regenerate link');
+      }
+    } catch (err: any) {
+      alert(err?.message || 'Error regenerating link');
+    }
+  };
+
   const handleCreateMember = async (e: React.FormEvent) => {
     e.preventDefault();
     setInviteLoading(true);
@@ -188,254 +211,272 @@ export default function AdminPortalView({ currentUserName, onRefreshAll }: Admin
 
   return (
     <div className="space-y-6">
-      {/* Header Banner */}
-      <div className="rounded-2xl border border-purple-200 bg-gradient-to-r from-purple-950 via-zinc-900 to-zinc-950 p-6 text-white shadow-xl dark:border-purple-900/50 sm:p-8">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-1">
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-purple-500/40 bg-purple-500/20 px-3 py-1 text-xs font-bold text-purple-300">
-              <Shield className="h-3.5 w-3.5" />
-              <span>Admin Authority: Snehansh &amp; Prattay</span>
+      {/* Header Card */}
+      <Card className="shadow-xs">
+        <CardContent className="p-6 sm:p-8">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <Badge variant="admin" className="gap-1 font-semibold text-xs">
+                  <Shield className="h-3 w-3 text-blue-600 dark:text-blue-400" />
+                  <span>Admin Authority</span>
+                </Badge>
+                <Badge variant="outline" className="text-xs">
+                  Snehansh &amp; Prattay
+                </Badge>
+              </div>
+              <h2 className="text-xl font-bold tracking-tight text-foreground">
+                Team Governance &amp; Member Management
+              </h2>
+              <p className="text-xs text-muted-foreground max-w-xl leading-relaxed">
+                Configure member accesses, generate one-time setup links, manage permissions, and oversee security credentials for Team Innovators.
+              </p>
             </div>
-            <h2 className="text-2xl font-bold tracking-tight">
-              Member Management &amp; Access Portal
-            </h2>
-            <p className="text-xs text-zinc-400 max-w-xl">
-              Manage team members, generate new direct invitation links, toggle permissions, and configure access for the Innovators Fund.
-            </p>
-          </div>
 
-          <button
-            onClick={() => {
-              setInviteSuccessData(null);
-              setInviteError(null);
-              setInviteModalOpen(true);
-            }}
-            className="flex shrink-0 items-center gap-2 rounded-xl bg-purple-600 px-4 py-2.5 text-xs font-bold text-white shadow-lg shadow-purple-600/30 transition hover:bg-purple-500"
-          >
-            <UserPlus className="h-4 w-4" />
-            <span>Invite New Member</span>
-          </button>
-        </div>
-      </div>
+            <Button
+              size="sm"
+              onClick={() => {
+                setInviteSuccessData(null);
+                setInviteError(null);
+                setInviteModalOpen(true);
+              }}
+              className="gap-2 self-start sm:self-auto text-xs"
+            >
+              <UserPlus className="h-4 w-4" />
+              <span>Invite New Member</span>
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Filter and Search Bar */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <form onSubmit={handleSearchSubmit} className="relative w-full sm:w-80">
-          <Search className="absolute left-3 top-2.5 h-4 w-4 text-zinc-400" />
-          <input
-            type="text"
-            placeholder="Search members by name or email..."
+          <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Search by name, ID, or email..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-xl border border-zinc-200 bg-white pl-9 pr-3 py-2 text-xs text-zinc-900 outline-none transition focus:border-purple-500 focus:ring-1 focus:ring-purple-500 dark:border-zinc-800 dark:bg-zinc-900 dark:text-white"
+            className="pl-8 text-xs h-9"
           />
         </form>
 
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => fetchMembers(page, search)}
-            className="flex items-center gap-1.5 rounded-xl border border-zinc-200 bg-white px-3 py-2 text-xs font-semibold text-zinc-700 shadow-sm hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:text-zinc-300"
-          >
-            <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
-            <span>Refresh</span>
-          </button>
-        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => fetchMembers(page, search)}
+          className="gap-1.5 text-xs self-start sm:self-auto h-9"
+        >
+          <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+          <span>Refresh</span>
+        </Button>
       </div>
 
       {/* Paginated Members Table */}
-      <div className="overflow-hidden rounded-2xl border border-zinc-200/80 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="border-b border-zinc-200 px-6 py-4 dark:border-zinc-800 flex items-center justify-between">
+      <Card className="shadow-xs overflow-hidden">
+        <CardHeader className="border-b border-border/80 px-6 py-4 flex flex-row items-center justify-between space-y-0">
           <div>
-            <h3 className="font-bold text-zinc-900 dark:text-white text-sm">
-              Team Members ({totalCount})
-            </h3>
-            <p className="text-xs text-zinc-500">
+            <CardTitle className="text-sm font-semibold">
+              Members Directory ({totalCount})
+            </CardTitle>
+            <p className="text-xs text-muted-foreground mt-0.5">
               Showing page {page} of {totalPages}
             </p>
           </div>
-        </div>
+        </CardHeader>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="border-b border-zinc-100 bg-zinc-50/70 text-[11px] font-semibold uppercase text-zinc-500 dark:border-zinc-800 dark:bg-zinc-800/50 dark:text-zinc-400">
-              <tr>
-                <th className="px-6 py-3.5">Member</th>
-                <th className="px-6 py-3.5">Role</th>
-                <th className="px-6 py-3.5">Notification Email</th>
-                <th className="px-6 py-3.5">Access Status</th>
-                <th className="px-6 py-3.5">Direct Link Token</th>
-                <th className="px-6 py-3.5 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
-              {members.map((member) => {
-                const isAdmin = member.role === 'admin';
-                const isCopied = copiedToken === member.direct_token;
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="border-b border-border bg-muted/30 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+                <tr>
+                  <th className="px-6 py-3.5">Member</th>
+                  <th className="px-6 py-3.5">Role</th>
+                  <th className="px-6 py-3.5">Notification Email</th>
+                  <th className="px-6 py-3.5">Status</th>
+                  <th className="px-6 py-3.5">Activation Token</th>
+                  <th className="px-6 py-3.5 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {members.map((member) => {
+                  const isAdmin = member.role === 'admin';
+                  const isCopied = copiedToken === member.direct_token;
+                  const isTokenActive = Boolean(member.direct_token && !member.token_used);
 
-                return (
-                  <tr
-                    key={member.id}
-                    className="transition hover:bg-zinc-50/50 dark:hover:bg-zinc-800/40"
-                  >
-                    {/* Name & ID */}
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`flex h-8 w-8 items-center justify-center rounded-lg font-bold uppercase text-white ${
-                            isAdmin ? 'bg-purple-600' : 'bg-zinc-700'
-                          }`}
+                  return (
+                    <tr
+                      key={member.id}
+                      className="transition-colors hover:bg-muted/40"
+                    >
+                      {/* Name & ID */}
+                      <td className="px-6 py-4">
+                        <div className="flex items-center gap-3">
+                          <div
+                            className="flex h-8 w-8 items-center justify-center rounded-md font-semibold uppercase text-white bg-zinc-800 dark:bg-zinc-700"
+                          >
+                            {member.name.charAt(0)}
+                          </div>
+                          <div>
+                            <div className="font-semibold text-foreground">
+                              {member.name}
+                            </div>
+                            <div className="font-mono text-[10px] text-muted-foreground">
+                              @{member.id}
+                            </div>
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Role */}
+                      <td className="px-6 py-4">
+                        <Badge
+                          variant={isAdmin ? 'admin' : 'secondary'}
+                          className="text-[11px] font-medium capitalize"
                         >
-                          {member.name.charAt(0)}
-                        </div>
-                        <div>
-                          <div className="font-bold text-zinc-900 dark:text-white">
-                            {member.name}
+                          {member.role}
+                        </Badge>
+                      </td>
+
+                      {/* Email */}
+                      <td className="px-6 py-4">
+                        {member.email ? (
+                          <div className="flex items-center gap-1.5 font-mono text-[11px] text-foreground">
+                            <Mail className="h-3 w-3 text-muted-foreground" />
+                            <span>{member.email}</span>
                           </div>
-                          <div className="font-mono text-[10px] text-zinc-400">
-                            @{member.id}
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-
-                    {/* Role */}
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
-                          isAdmin
-                            ? 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300'
-                            : 'bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300'
-                        }`}
-                      >
-                        {isAdmin ? '👑 Administrator' : 'Member'}
-                      </span>
-                    </td>
-
-                    {/* Email */}
-                    <td className="px-6 py-4">
-                      {member.email ? (
-                        <div className="flex items-center gap-1.5 text-zinc-700 dark:text-zinc-300">
-                          <Mail className="h-3.5 w-3.5 text-emerald-600" />
-                          <span className="font-mono text-[11px]">{member.email}</span>
-                        </div>
-                      ) : (
-                        <span className="text-[11px] text-zinc-400 italic">
-                          Not configured
-                        </span>
-                      )}
-                    </td>
-
-                    {/* Status */}
-                    <td className="px-6 py-4">
-                      <button
-                        onClick={() => handleToggleActive(member)}
-                        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-bold transition ${
-                          member.is_active
-                            ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100 dark:bg-emerald-950 dark:text-emerald-300'
-                            : 'bg-red-50 text-red-700 hover:bg-red-100 dark:bg-red-950 dark:text-red-300'
-                        }`}
-                        title="Click to toggle access"
-                      >
-                        <span
-                          className={`h-1.5 w-1.5 rounded-full ${
-                            member.is_active ? 'bg-emerald-500' : 'bg-red-500'
-                          }`}
-                        />
-                        <span>{member.is_active ? 'Active' : 'Disabled'}</span>
-                      </button>
-                    </td>
-
-                    {/* Direct Link Token */}
-                    <td className="px-6 py-4">
-                      <button
-                        onClick={() => copyDirectLink(member.direct_token)}
-                        className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-zinc-50 px-2.5 py-1 font-mono text-[11px] text-zinc-600 transition hover:bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
-                      >
-                        {isCopied ? (
-                          <Check className="h-3.5 w-3.5 text-emerald-600" />
                         ) : (
-                          <Copy className="h-3.5 w-3.5 text-zinc-400" />
+                          <span className="text-[11px] text-muted-foreground italic">
+                            Not configured
+                          </span>
                         )}
-                        <span className="truncate max-w-[120px]">
-                          {member.direct_token}
-                        </span>
-                      </button>
-                    </td>
+                      </td>
 
-                    {/* Actions */}
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
-                        <button
-                          onClick={() => {
-                            setResetModalMember(member);
-                            setNewPasswordVal('');
-                            setResetMsg(null);
-                          }}
-                          className="rounded-lg border border-zinc-200 p-1.5 text-zinc-600 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-400 dark:hover:bg-zinc-800"
-                          title="Reset Password"
-                        >
-                          <Key className="h-3.5 w-3.5" />
-                        </button>
-                        <button
+                      {/* Status */}
+                      <td className="px-6 py-4">
+                        <Badge
+                          variant={member.is_active ? 'success' : 'destructive'}
                           onClick={() => handleToggleActive(member)}
-                          className={`rounded-lg p-1.5 transition ${
-                            member.is_active
-                              ? 'text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40'
-                              : 'text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/40'
-                          }`}
-                          title={member.is_active ? 'Disable account' : 'Enable account'}
+                          className="cursor-pointer text-[10px] font-semibold"
                         >
-                          <Power className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                          {member.is_active ? 'Active' : 'Disabled'}
+                        </Badge>
+                      </td>
 
-        {/* Pagination Footer */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-between border-t border-zinc-200 px-6 py-3 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900/50">
-            <button
-              onClick={() => fetchMembers(page - 1)}
-              disabled={page <= 1}
-              className="flex items-center gap-1 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 shadow-sm hover:bg-zinc-50 disabled:opacity-40 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
-            >
-              <ChevronLeft className="h-3.5 w-3.5" />
-              <span>Previous</span>
-            </button>
-            <span className="text-xs font-medium text-zinc-500">
-              Page {page} of {totalPages}
-            </span>
-            <button
-              onClick={() => fetchMembers(page + 1)}
-              disabled={page >= totalPages}
-              className="flex items-center gap-1 rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-xs font-semibold text-zinc-700 shadow-sm hover:bg-zinc-50 disabled:opacity-40 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-300"
-            >
-              <span>Next</span>
-              <ChevronRight className="h-3.5 w-3.5" />
-            </button>
+                      {/* Direct Link Token */}
+                      <td className="px-6 py-4">
+                        {isTokenActive ? (
+                          <button
+                            onClick={() => copyDirectLink(member.direct_token!)}
+                            className="flex items-center gap-1.5 rounded-md border border-border bg-muted/40 px-2 py-1 font-mono text-[11px] text-foreground transition-colors hover:bg-muted"
+                          >
+                            {isCopied ? (
+                              <Check className="h-3 w-3 text-emerald-600" />
+                            ) : (
+                              <Copy className="h-3 w-3 text-muted-foreground" />
+                            )}
+                            <span className="truncate max-w-[110px]">
+                              {member.direct_token}
+                            </span>
+                          </button>
+                        ) : (
+                          <div className="flex items-center gap-1.5 text-muted-foreground text-[11px]">
+                            <span>Expired</span>
+                            <button
+                              onClick={() => handleRegenerateLink(member.id)}
+                              className="text-primary hover:underline font-medium text-[10px] flex items-center gap-0.5"
+                              title="Generate new activation token"
+                            >
+                              <RotateCw className="h-2.5 w-2.5" />
+                              <span>Re-issue</span>
+                            </button>
+                          </div>
+                        )}
+                      </td>
+
+                      {/* Actions */}
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => {
+                              setResetModalMember(member);
+                              setNewPasswordVal('');
+                              setResetMsg(null);
+                            }}
+                            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                            title="Reset password"
+                          >
+                            <Key className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleToggleActive(member)}
+                            className={`h-8 w-8 ${
+                              member.is_active
+                                ? 'text-destructive hover:bg-destructive/10'
+                                : 'text-emerald-600 hover:bg-emerald-50'
+                            }`}
+                            title={member.is_active ? 'Disable account' : 'Enable account'}
+                          >
+                            <Power className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
-        )}
-      </div>
+
+          {/* Pagination Footer */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between border-t border-border px-6 py-3 bg-muted/20">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => fetchMembers(page - 1)}
+                disabled={page <= 1}
+                className="h-8 gap-1 text-xs"
+              >
+                <ChevronLeft className="h-3.5 w-3.5" />
+                <span>Previous</span>
+              </Button>
+              <span className="text-xs text-muted-foreground">
+                Page {page} of {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => fetchMembers(page + 1)}
+                disabled={page >= totalPages}
+                className="h-8 gap-1 text-xs"
+              >
+                <span>Next</span>
+                <ChevronRight className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Invite Modal */}
       {inviteModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-in fade-in">
-          <div className="relative w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900">
-            <h3 className="text-base font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-              <UserPlus className="h-5 w-5 text-purple-600" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in">
+          <div className="relative w-full max-w-md rounded-xl border border-border bg-popover p-6 shadow-xl text-popover-foreground">
+            <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
+              <UserPlus className="h-4 w-4 text-blue-600" />
               <span>Invite New Innovator</span>
             </h3>
-            <p className="text-xs text-zinc-500 mt-1">
-              Create a member account with a dedicated direct login link.
+            <p className="text-xs text-muted-foreground mt-1">
+              Create a team member account with a dedicated one-time setup link.
             </p>
 
             {inviteError && (
-              <div className="mt-3 flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-2.5 text-xs font-medium text-red-800 dark:border-red-900/50 dark:bg-red-950/50 dark:text-red-300">
+              <div className="mt-3 flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 p-2.5 text-xs font-medium text-destructive">
                 <AlertCircle className="h-4 w-4 shrink-0" />
                 <span>{inviteError}</span>
               </div>
@@ -443,64 +484,64 @@ export default function AdminPortalView({ currentUserName, onRefreshAll }: Admin
 
             {inviteSuccessData ? (
               <div className="mt-4 space-y-4">
-                <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-xs dark:border-emerald-900/40 dark:bg-emerald-950/40">
-                  <div className="flex items-center gap-2 font-bold text-emerald-800 dark:text-emerald-300">
+                <div className="rounded-lg border border-border bg-muted/40 p-4 text-xs">
+                  <div className="flex items-center gap-2 font-semibold text-foreground">
                     <CheckCircle2 className="h-4 w-4 text-emerald-600" />
                     <span>Member Created: {inviteSuccessData.name}</span>
                   </div>
-                  <p className="mt-2 text-zinc-600 dark:text-zinc-400">
-                    Share this direct login link with the member:
+                  <p className="mt-2 text-muted-foreground">
+                    Share this activation link with the member:
                   </p>
-                  <div className="mt-2 flex items-center justify-between rounded-lg bg-white p-2.5 border border-emerald-200 dark:bg-zinc-900 dark:border-emerald-900/50">
-                    <span className="font-mono text-[11px] truncate text-zinc-800 dark:text-zinc-200">
+                  <div className="mt-2 flex items-center justify-between rounded-md bg-background p-2 border border-border">
+                    <span className="font-mono text-[11px] truncate text-foreground">
                       {typeof window !== 'undefined' ? window.location.origin : ''}/login?token={inviteSuccessData.directToken}
                     </span>
-                    <button
+                    <Button
+                      size="sm"
                       onClick={() => copyDirectLink(inviteSuccessData.directToken)}
-                      className="ml-2 shrink-0 rounded bg-emerald-600 px-2.5 py-1 text-white font-semibold text-[11px]"
+                      className="ml-2 h-7 px-2.5 text-xs"
                     >
-                      {copiedToken === inviteSuccessData.directToken ? 'Copied!' : 'Copy'}
-                    </button>
+                      {copiedToken === inviteSuccessData.directToken ? 'Copied' : 'Copy'}
+                    </Button>
                   </div>
                 </div>
 
                 <div className="flex justify-end">
-                  <button
+                  <Button
+                    size="sm"
                     onClick={() => {
                       setInviteModalOpen(false);
                       setInviteSuccessData(null);
                     }}
-                    className="rounded-xl bg-zinc-900 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-zinc-800 dark:bg-white dark:text-zinc-900"
                   >
                     Done
-                  </button>
+                  </Button>
                 </div>
               </div>
             ) : (
               <form onSubmit={handleCreateMember} className="mt-4 space-y-3">
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                  <label className="block text-xs font-medium text-foreground">
                     Full Name *
                   </label>
-                  <input
-                    type="text"
+                  <Input
                     required
-                    placeholder="e.g., Alex Ray"
+                    placeholder="e.g. Alex Ray"
                     value={inviteName}
                     onChange={(e) => setInviteName(e.target.value)}
-                    className="mt-1 w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-purple-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+                    className="mt-1 text-xs"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                    <label className="block text-xs font-medium text-foreground">
                       Role
                     </label>
                     <select
                       value={inviteRole}
                       onChange={(e) => setInviteRole(e.target.value as MemberRole)}
-                      className="mt-1 w-full rounded-xl border border-zinc-300 bg-white px-2.5 py-2 text-sm text-zinc-900 outline-none focus:border-purple-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+                      className="mt-1 w-full rounded-md border border-input bg-background px-3 py-1.5 text-xs text-foreground outline-hidden focus-visible:ring-1 focus-visible:ring-ring"
                     >
                       <option value="member">Member</option>
                       <option value="admin">Admin</option>
@@ -508,46 +549,46 @@ export default function AdminPortalView({ currentUserName, onRefreshAll }: Admin
                   </div>
 
                   <div>
-                    <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                    <label className="block text-xs font-medium text-foreground">
                       Initial Password
                     </label>
-                    <input
-                      type="text"
+                    <Input
                       value={invitePassword}
                       onChange={(e) => setInvitePassword(e.target.value)}
-                      className="mt-1 w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:border-purple-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+                      className="mt-1 text-xs"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+                  <label className="block text-xs font-medium text-foreground">
                     Notification Email (Optional)
                   </label>
-                  <input
+                  <Input
                     type="email"
                     placeholder="alex@example.com"
                     value={inviteEmail}
                     onChange={(e) => setInviteEmail(e.target.value)}
-                    className="mt-1 w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:border-purple-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+                    className="mt-1 text-xs"
                   />
                 </div>
 
                 <div className="flex items-center justify-end gap-2 pt-3">
-                  <button
+                  <Button
                     type="button"
+                    variant="outline"
+                    size="sm"
                     onClick={() => setInviteModalOpen(false)}
-                    className="rounded-xl px-4 py-2 text-xs font-semibold text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
                   >
                     Cancel
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="submit"
+                    size="sm"
                     disabled={inviteLoading}
-                    className="rounded-xl bg-purple-600 px-5 py-2 text-xs font-bold text-white shadow-sm hover:bg-purple-500 disabled:opacity-50"
                   >
                     {inviteLoading ? 'Creating...' : 'Create & Generate Link'}
-                  </button>
+                  </Button>
                 </div>
               </form>
             )}
@@ -557,10 +598,10 @@ export default function AdminPortalView({ currentUserName, onRefreshAll }: Admin
 
       {/* Reset Password Modal */}
       {resetModalMember && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-in fade-in">
-          <div className="relative w-full max-w-sm rounded-2xl border border-zinc-200 bg-white p-6 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900">
-            <h3 className="text-sm font-bold text-zinc-900 dark:text-white flex items-center gap-2">
-              <Key className="h-4 w-4 text-purple-600" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in">
+          <div className="relative w-full max-w-sm rounded-xl border border-border bg-popover p-6 shadow-xl text-popover-foreground">
+            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+              <Key className="h-4 w-4 text-blue-600" />
               <span>Reset Password: {resetModalMember.name}</span>
             </h3>
 
@@ -572,35 +613,35 @@ export default function AdminPortalView({ currentUserName, onRefreshAll }: Admin
 
             <form onSubmit={handleResetPassword} className="mt-4 space-y-3">
               <div>
-                <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
-                  New Password (min 4 chars)
+                <label className="block text-xs font-medium text-foreground">
+                  New Password (min 4 characters)
                 </label>
-                <input
-                  type="text"
+                <Input
                   required
                   minLength={4}
                   placeholder="Enter new password"
                   value={newPasswordVal}
                   onChange={(e) => setNewPasswordVal(e.target.value)}
-                  className="mt-1 w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:border-purple-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+                  className="mt-1 text-xs"
                 />
               </div>
 
               <div className="flex items-center justify-end gap-2 pt-2">
-                <button
+                <Button
                   type="button"
+                  variant="outline"
+                  size="sm"
                   onClick={() => setResetModalMember(null)}
-                  className="rounded-xl px-3 py-1.5 text-xs font-semibold text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
                 >
                   Cancel
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
+                  size="sm"
                   disabled={resetLoading || newPasswordVal.length < 4}
-                  className="rounded-xl bg-purple-600 px-4 py-1.5 text-xs font-bold text-white shadow-sm hover:bg-purple-500 disabled:opacity-50"
                 >
                   {resetLoading ? 'Saving...' : 'Set Password'}
-                </button>
+                </Button>
               </div>
             </form>
           </div>

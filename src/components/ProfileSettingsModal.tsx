@@ -15,6 +15,10 @@ import {
 } from 'lucide-react';
 import { MemberRole } from '@/lib/types';
 
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+
 interface ProfileSettingsModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -101,40 +105,43 @@ export default function ProfileSettingsModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-in fade-in">
-      <div className="relative w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 shadow-2xl dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="relative w-full max-w-md rounded-xl border border-border bg-card p-6 shadow-2xl">
         {/* Close */}
         <button
           onClick={onClose}
-          className="absolute right-4 top-4 rounded-lg p-1.5 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 dark:hover:bg-zinc-800"
+          className="absolute right-4 top-4 rounded-lg p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
         >
-          <X className="h-5 w-5" />
+          <X className="h-4 w-4" />
         </button>
 
         {/* Header */}
-        <div className="flex items-center gap-3 border-b border-zinc-100 pb-4 dark:border-zinc-800">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-white">
+        <div className="flex items-center gap-3 border-b border-border pb-4">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-secondary text-foreground">
             <Settings className="h-5 w-5" />
           </div>
           <div>
-            <h3 className="text-base font-bold text-zinc-900 dark:text-white">
+            <h3 className="text-base font-semibold tracking-tight text-foreground">
               Profile &amp; Email Settings
             </h3>
-            <p className="text-xs text-zinc-500">
-              Logged in as <span className="font-semibold text-zinc-800 dark:text-zinc-200">{currentUser.name}</span> ({currentUser.role})
+            <p className="text-xs text-muted-foreground">
+              Logged in as <span className="font-semibold text-foreground">{currentUser.name}</span>{' '}
+              <Badge variant={currentUser.role === 'admin' ? 'admin' : 'secondary'} className="ml-1 text-[10px] py-0 px-1.5">
+                {currentUser.role === 'admin' ? 'Admin' : 'Member'}
+              </Badge>
             </p>
           </div>
         </div>
 
         {/* Feedback alerts */}
         {error && (
-          <div className="mt-3 flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-2.5 text-xs font-medium text-red-800 dark:border-red-900/50 dark:bg-red-950/50 dark:text-red-300">
+          <div className="mt-3 flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 p-2.5 text-xs font-medium text-destructive">
             <AlertCircle className="h-4 w-4 shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
         {success && (
-          <div className="mt-3 flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 p-2.5 text-xs font-medium text-emerald-800 dark:border-emerald-900/50 dark:bg-emerald-950/50 dark:text-emerald-300">
+          <div className="mt-3 flex items-center gap-2 rounded-lg border border-emerald-500/20 bg-emerald-500/10 p-2.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
             <CheckCircle2 className="h-4 w-4 shrink-0" />
             <span>{success}</span>
           </div>
@@ -142,50 +149,50 @@ export default function ProfileSettingsModal({
 
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           {/* Notification Email Input */}
-          <div>
-            <label className="block text-xs font-semibold text-zinc-700 dark:text-zinc-300">
+          <div className="space-y-1.5">
+            <label className="text-xs font-medium text-foreground">
               Notification Email (Resend Alerts)
             </label>
-            <div className="relative mt-1.5">
-              <Mail className="absolute left-3 top-2.5 h-4 w-4 text-zinc-400" />
-              <input
+            <div className="relative">
+              <Mail className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
                 type="email"
                 placeholder="your.email@gmail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full rounded-xl border border-zinc-300 bg-white pl-9 pr-3 py-2 text-sm text-zinc-900 outline-none transition focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+                className="pl-9 text-xs"
               />
             </div>
-            <p className="mt-1 text-[11px] text-zinc-500">
-              * Whenever a fund request is submitted or reviewed, Resend will send audit notifications and balance updates to this email.
+            <p className="text-[11px] text-muted-foreground">
+              Real-time audit updates and pool notifications will be dispatched to this email.
             </p>
           </div>
 
           {/* Change Password Section */}
-          <div className="rounded-xl border border-zinc-200 bg-zinc-50/70 p-3.5 dark:border-zinc-800 dark:bg-zinc-800/40 space-y-3">
-            <div className="flex items-center gap-1.5 font-bold text-xs text-zinc-800 dark:text-zinc-200">
-              <Lock className="h-3.5 w-3.5 text-zinc-500" />
+          <div className="rounded-lg border border-border bg-muted/40 p-3.5 space-y-3">
+            <div className="flex items-center gap-1.5 font-medium text-xs text-foreground">
+              <Lock className="h-3.5 w-3.5 text-muted-foreground" />
               <span>Change Password (Optional)</span>
             </div>
 
             <div>
-              <input
+              <Input
                 type="password"
                 placeholder="New password (leave blank to keep current)"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-xs text-zinc-900 outline-none focus:border-emerald-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+                className="text-xs bg-background"
               />
             </div>
 
             {password.length > 0 && (
               <div>
-                <input
+                <Input
                   type="password"
                   placeholder="Confirm new password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full rounded-xl border border-zinc-300 bg-white px-3 py-2 text-xs text-zinc-900 outline-none focus:border-emerald-500 dark:border-zinc-700 dark:bg-zinc-800 dark:text-white"
+                  className="text-xs bg-background"
                 />
               </div>
             )}
@@ -193,21 +200,23 @@ export default function ProfileSettingsModal({
 
           {/* Direct Link Banner */}
           {currentUser.directToken && (
-            <div className="rounded-xl border border-emerald-200 bg-emerald-50/50 p-3 dark:border-emerald-950 dark:bg-emerald-950/20">
+            <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] font-bold text-emerald-800 dark:text-emerald-300">
-                  Your Personal Direct Login Link
+                <span className="text-xs font-medium text-foreground">
+                  Personal Direct Link
                 </span>
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="sm"
                   onClick={copyMyDirectLink}
-                  className="flex items-center gap-1 text-[11px] font-bold text-emerald-700 hover:underline dark:text-emerald-400"
+                  className="h-7 px-2 text-xs text-emerald-600 dark:text-emerald-400 hover:text-emerald-700"
                 >
-                  {copiedLink ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-                  <span>{copiedLink ? 'Copied!' : 'Copy Link'}</span>
-                </button>
+                  {copiedLink ? <Check className="mr-1 h-3.5 w-3.5" /> : <Copy className="mr-1 h-3.5 w-3.5" />}
+                  <span>{copiedLink ? 'Copied' : 'Copy Link'}</span>
+                </Button>
               </div>
-              <p className="mt-1 text-[10px] text-zinc-500 font-mono truncate">
+              <p className="mt-1 text-[11px] text-muted-foreground font-mono truncate">
                 /login?token={currentUser.directToken}
               </p>
             </div>
@@ -215,20 +224,21 @@ export default function ProfileSettingsModal({
 
           {/* Actions */}
           <div className="flex items-center justify-end gap-2 pt-2">
-            <button
+            <Button
               type="button"
+              variant="outline"
+              size="sm"
               onClick={onClose}
-              className="rounded-xl px-4 py-2 text-xs font-semibold text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
+              size="sm"
               disabled={loading}
-              className="flex items-center gap-1.5 rounded-xl bg-emerald-600 px-5 py-2 text-xs font-bold text-white shadow-sm hover:bg-emerald-500 disabled:opacity-50"
             >
               {loading ? 'Saving...' : 'Save Settings'}
-            </button>
+            </Button>
           </div>
         </form>
       </div>
