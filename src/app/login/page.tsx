@@ -161,31 +161,6 @@ function LoginContent() {
     }
   };
 
-  // 1-Click Fast Switch Login
-  const handleDirectSwitch = async (memberId: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'switch',
-          memberId,
-        }),
-      });
-
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Login failed');
-
-      router.push('/');
-    } catch (err: any) {
-      setError(err?.message || 'Quick login failed');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   // Loading state while verifying token
   if (verifyingToken) {
     return (
@@ -458,75 +433,6 @@ function LoginContent() {
                 <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
               </Button>
             </form>
-
-            {/* Divider */}
-            <div className="relative my-6 text-center">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-border" />
-              </div>
-              <span className="relative bg-card px-3 text-[11px] font-semibold uppercase text-muted-foreground">
-                Or Quick Access Switch
-              </span>
-            </div>
-
-            {/* Quick Member Login Buttons */}
-            <div className="space-y-1.5">
-              <div className="text-[11px] font-medium text-muted-foreground pb-1">
-                Select team member:
-              </div>
-              <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleDirectSwitch('prattay')}
-                  className="justify-between border-purple-500/30 hover:border-purple-500/60 hover:bg-purple-500/5 font-medium text-xs"
-                >
-                  <span className="font-semibold text-foreground">Prattay</span>
-                  <Badge variant="admin" className="text-[9px] py-0 px-1.5">Admin</Badge>
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleDirectSwitch('snehansh')}
-                  className="justify-between border-purple-500/30 hover:border-purple-500/60 hover:bg-purple-500/5 font-medium text-xs"
-                >
-                  <span className="font-semibold text-foreground">Snehansh</span>
-                  <Badge variant="admin" className="text-[9px] py-0 px-1.5">Admin</Badge>
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleDirectSwitch('somoy')}
-                  className="justify-between font-medium text-xs"
-                >
-                  <span className="text-foreground">Somoy</span>
-                  <Badge variant="secondary" className="text-[9px] py-0 px-1.5">Member</Badge>
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleDirectSwitch('sraman')}
-                  className="justify-between font-medium text-xs"
-                >
-                  <span className="text-foreground">Sraman</span>
-                  <Badge variant="secondary" className="text-[9px] py-0 px-1.5">Member</Badge>
-                </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleDirectSwitch('barta')}
-                  className="col-span-1 sm:col-span-2 justify-between font-medium text-xs"
-                >
-                  <span className="text-foreground">Barta</span>
-                  <Badge variant="secondary" className="text-[9px] py-0 px-1.5">Member</Badge>
-                </Button>
-              </div>
-            </div>
           </CardContent>
         </Card>
       </div>

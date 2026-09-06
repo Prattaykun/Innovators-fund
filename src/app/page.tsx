@@ -49,16 +49,8 @@ export default function HomePage() {
       if (data.user) {
         setCurrentUser(data.user);
       } else {
-        // Auto default login to Prattay (Admin) if no cookie session exists yet
-        const loginRes = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type: 'switch', memberId: 'prattay' }),
-        });
-        const loginData = await loginRes.json();
-        if (loginData.user) {
-          setCurrentUser(loginData.user);
-        }
+        // Not authenticated -> redirect to login page
+        window.location.href = '/login';
       }
     } catch (err) {
       console.error('Failed to fetch user:', err);
@@ -100,27 +92,6 @@ export default function HomePage() {
     fetchData();
   }, [fetchUser, fetchData]);
 
-  const handleSwitchUser = async (memberId: string) => {
-    try {
-      const res = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'switch', memberId }),
-      });
-      const data = await res.json();
-      if (data.user) {
-        setCurrentUser(data.user);
-        fetchData();
-        // If switched to non-admin and currently on admin tab, switch to dashboard
-        if (data.user.role !== 'admin' && activeTab === 'admin') {
-          setActiveTab('dashboard');
-        }
-      }
-    } catch (err) {
-      console.error('Failed to switch user:', err);
-    }
-  };
-
   const handleLogout = async () => {
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
@@ -142,8 +113,6 @@ export default function HomePage() {
         onOpenRequestModal={() => setRequestModalOpen(true)}
         onOpenProfileModal={() => setProfileModalOpen(true)}
         onLogout={handleLogout}
-        onSwitchUser={handleSwitchUser}
-        allMembers={members}
       />
 
       {/* Main Content Area */}
@@ -256,7 +225,6 @@ export default function HomePage() {
                 <DirectLinksView
                   members={members}
                   currentUserId={currentUser?.id}
-                  onSwitchUser={handleSwitchUser}
                   onOpenProfileModal={() => setProfileModalOpen(true)}
                 />
               </div>

@@ -50,23 +50,8 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Incorrect password' }, { status: 401 });
       }
       member = data;
-    } else if (type === 'switch') {
-      if (!memberId) {
-        return NextResponse.json({ error: 'Member ID is required' }, { status: 400 });
-      }
-      const { data, error } = await supabase
-        .from('members')
-        .select('*')
-        .eq('id', memberId.trim().toLowerCase())
-        .eq('is_active', true)
-        .single();
-
-      if (error || !data) {
-        return NextResponse.json({ error: 'Member not found or inactive' }, { status: 404 });
-      }
-      member = data;
     } else {
-      return NextResponse.json({ error: 'Invalid login type' }, { status: 400 });
+      return NextResponse.json({ error: 'Invalid login type. Use token or credentials.' }, { status: 400 });
     }
 
     const sessionUser: SessionUser = {

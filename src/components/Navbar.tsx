@@ -32,8 +32,6 @@ interface NavbarProps {
   onOpenRequestModal: () => void;
   onOpenProfileModal: () => void;
   onLogout: () => void;
-  onSwitchUser: (memberId: string) => void;
-  allMembers: Array<{ id: string; name: string; role: MemberRole }>;
 }
 
 export default function Navbar({
@@ -44,8 +42,6 @@ export default function Navbar({
   onOpenRequestModal,
   onOpenProfileModal,
   onLogout,
-  onSwitchUser,
-  allMembers,
 }: NavbarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
@@ -141,16 +137,23 @@ export default function Navbar({
             Members
           </Button>
 
-          {/* Admin Tab - Snehansh & Prattay */}
+          {/* Admin Portal Tab - Snehansh & Prattay Only */}
           {isAdmin && (
             <Button
-              variant={activeTab === 'admin' ? 'secondary' : 'ghost'}
+              variant={activeTab === 'admin' ? 'secondary' : 'outline'}
               size="sm"
               onClick={() => setActiveTab('admin')}
-              className="gap-1.5 text-xs font-medium text-foreground"
+              className={`gap-1.5 text-xs font-semibold transition-all ${
+                activeTab === 'admin'
+                  ? 'bg-purple-100 text-purple-900 border-purple-300 dark:bg-purple-950/60 dark:text-purple-200 dark:border-purple-800'
+                  : 'border-purple-200 text-purple-700 hover:bg-purple-50 hover:text-purple-900 dark:border-purple-900/50 dark:text-purple-300 dark:hover:bg-purple-950/30'
+              }`}
             >
-              <Shield className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+              <Shield className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
               <span>Admin Portal</span>
+              <span className="rounded-full bg-purple-200/80 px-1.5 py-0.2 text-[9px] font-bold text-purple-800 dark:bg-purple-900 dark:text-purple-200">
+                Snehansh &amp; Prattay
+              </span>
             </Button>
           )}
         </nav>
@@ -242,34 +245,19 @@ export default function Navbar({
                         <Settings className="h-3.5 w-3.5 text-muted-foreground" />
                         <span>Settings &amp; Email</span>
                       </button>
-                    </div>
 
-                    {/* Fast Switch Identity */}
-                    <div className="border-t border-border/80 pt-2">
-                      <div className="px-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                        Switch Member Profile
-                      </div>
-                      <div className="max-h-40 space-y-0.5 overflow-y-auto">
-                        {allMembers.map((m) => (
-                          <button
-                            key={m.id}
-                            onClick={() => {
-                              setUserDropdownOpen(false);
-                              onSwitchUser(m.id);
-                            }}
-                            className={`flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-xs transition-colors ${
-                              m.id === currentUser.id
-                                ? 'bg-muted font-semibold text-foreground'
-                                : 'text-muted-foreground hover:bg-accent hover:text-foreground'
-                            }`}
-                          >
-                            <span>{m.name}</span>
-                            <Badge variant={m.role === 'admin' ? 'admin' : 'outline'} className="text-[9px] py-0 px-1.5">
-                              {m.role}
-                            </Badge>
-                          </button>
-                        ))}
-                      </div>
+                      {isAdmin && (
+                        <button
+                          onClick={() => {
+                            setUserDropdownOpen(false);
+                            setActiveTab('admin');
+                          }}
+                          className="flex w-full items-center gap-2 rounded-lg px-2.5 py-2 text-xs font-semibold text-foreground transition-colors hover:bg-accent"
+                        >
+                          <Shield className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                          <span>Admin Portal (Snehansh &amp; Prattay)</span>
+                        </button>
+                      )}
                     </div>
 
                     {/* Logout */}

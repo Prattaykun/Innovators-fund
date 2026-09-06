@@ -18,14 +18,12 @@ import { Button } from '@/components/ui/button';
 interface DirectLinksViewProps {
   members: Member[];
   currentUserId?: string;
-  onSwitchUser: (memberId: string) => void;
   onOpenProfileModal: () => void;
 }
 
 export default function DirectLinksView({
   members,
   currentUserId,
-  onSwitchUser,
   onOpenProfileModal,
 }: DirectLinksViewProps) {
   const [copiedToken, setCopiedToken] = useState<string | null>(null);
@@ -176,27 +174,16 @@ export default function DirectLinksView({
                       variant="outline"
                       size="sm"
                       onClick={() => copyLink(member.direct_token)}
-                      className="flex-1 text-xs gap-1.5 h-8"
+                      className="w-full text-xs gap-1.5 h-8"
                     >
                       {isCopied ? <Check className="h-3.5 w-3.5 text-emerald-600" /> : <Copy className="h-3.5 w-3.5" />}
                       <span>{isCopied ? 'Copied' : 'Copy Activation Link'}</span>
                     </Button>
                   ) : (
-                    <Badge variant="outline" className="flex-1 justify-center py-1.5 text-xs font-normal text-muted-foreground">
-                      Password Set
+                    <Badge variant="outline" className="w-full justify-center py-1.5 text-xs font-normal text-muted-foreground">
+                      Account Activated (Password Set)
                     </Badge>
                   )}
-
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => onSwitchUser(member.id)}
-                    className="h-8 gap-1 text-xs"
-                    title="Switch user"
-                  >
-                    <span>Switch</span>
-                    <ArrowRight className="h-3 w-3" />
-                  </Button>
                 </div>
               </CardContent>
             </Card>
