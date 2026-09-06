@@ -245,25 +245,36 @@ function LoginContent() {
             )}
 
             <form onSubmit={handleCompleteSetup} className="space-y-4">
-              {/* Member ID info */}
+              {/* Member ID and Locked Role Info */}
               <div className="flex items-center justify-between rounded-xl bg-zinc-50 p-3 border border-zinc-200 dark:bg-zinc-800/60 dark:border-zinc-700">
                 <div>
                   <div className="text-[10px] font-semibold uppercase text-zinc-400">
-                    Username / ID
+                    Username / Member ID
                   </div>
                   <div className="font-mono text-xs font-bold text-zinc-800 dark:text-zinc-200">
                     @{tokenMember.id}
                   </div>
                 </div>
-                <span
-                  className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${
-                    isAdmin
-                      ? 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300'
-                      : 'bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300'
-                  }`}
-                >
-                  {isAdmin ? '👑 Admin' : 'Member'}
-                </span>
+                <div className="text-right">
+                  <div className="text-[10px] font-semibold uppercase text-zinc-400 flex items-center gap-1 justify-end">
+                    <Lock className="h-2.5 w-2.5" />
+                    <span>Assigned Role</span>
+                  </div>
+                  <span
+                    className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${
+                      isAdmin
+                        ? 'bg-purple-100 text-purple-800 dark:bg-purple-950 dark:text-purple-300'
+                        : 'bg-zinc-200 text-zinc-800 dark:bg-zinc-700 dark:text-zinc-200'
+                    }`}
+                  >
+                    {isAdmin ? '👑 Administrator' : '🚀 Member'}
+                  </span>
+                </div>
+              </div>
+
+              <div className="text-[11px] text-zinc-500 bg-zinc-100/70 dark:bg-zinc-800/40 p-2.5 rounded-lg border border-zinc-200 dark:border-zinc-700/50 flex items-center gap-2">
+                <Shield className="h-4 w-4 text-purple-600 shrink-0" />
+                <span>Your account role was assigned by the admin and cannot be changed during setup.</span>
               </div>
 
               {/* Password */}
