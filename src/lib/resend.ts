@@ -3,8 +3,8 @@ import { Resend } from 'resend';
 const resendApiKey = process.env.RESEND_API_KEY || '';
 const resend = new Resend(resendApiKey);
 
-// Resend free tier sends from onboarding@resend.dev
-const FROM_EMAIL = 'Innovators Fund <onboarding@resend.dev>';
+// Resend verified domain sender
+const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Innovators Fund <notifications@innovators.eu.cc>';
 
 export interface SendRequestEmailParams {
   toEmails: string[];
