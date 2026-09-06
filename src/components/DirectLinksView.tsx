@@ -10,7 +10,7 @@ import {
   ArrowRight,
   Sparkles,
 } from 'lucide-react';
-import { Member } from '@/lib/types';
+import { Member, MemberRole } from '@/lib/types';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -18,12 +18,14 @@ import { Button } from '@/components/ui/button';
 interface DirectLinksViewProps {
   members: Member[];
   currentUserId?: string;
+  currentUserRole?: MemberRole;
   onOpenProfileModal: () => void;
 }
 
 export default function DirectLinksView({
   members,
   currentUserId,
+  currentUserRole,
   onOpenProfileModal,
 }: DirectLinksViewProps) {
   const [copiedToken, setCopiedToken] = useState<string | null>(null);
@@ -79,6 +81,8 @@ export default function DirectLinksView({
         {members.map((member) => {
           const isCurrentUser = member.id === currentUserId;
           const isAdmin = member.role === 'admin';
+          const viewerIsAdmin = currentUserRole === 'admin';
+          const canViewToken = (viewerIsAdmin || isCurrentUser) && Boolean(member.direct_token);
           const isCopied = copiedToken === member.direct_token;
           const isTokenActive = Boolean(member.direct_token && !member.token_used);
 
@@ -143,33 +147,41 @@ export default function DirectLinksView({
                 {/* Token Link Status */}
                 <div>
                   <div className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
-                    Activation Link Status
+                    {canViewToken ? 'Activation Link Status' : 'Account Status'}
                   </div>
                   <div className="mt-1 flex items-center justify-between rounded-md border border-border bg-muted/30 px-2.5 py-1.5 text-xs">
-                    {isTokenActive ? (
-                      <span className="font-mono text-[11px] text-muted-foreground truncate">
-                        token-...{member.direct_token?.slice(-8)}
-                      </span>
+                    {canViewToken ? (
+                      <>
+                        {isTokenActive ? (
+                          <span className="font-mono text-[11px] text-muted-foreground truncate">
+                            token-...{member.direct_token?.slice(-8)}
+                          </span>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">
+                            Activated (Link Expired)
+                          </span>
+                        )}
+
+                        {isTokenActive && (
+                          <button
+                            onClick={() => copyLink(member.direct_token)}
+                            className="ml-2 text-xs font-semibold text-foreground hover:underline"
+                          >
+                            {isCopied ? 'Copied' : 'Copy'}
+                          </button>
+                        )}
+                      </>
                     ) : (
                       <span className="text-xs text-muted-foreground">
-                        Activated (Link Expired)
+                        {member.token_used ? 'Active Member' : 'Setup Pending (Link Protected)'}
                       </span>
-                    )}
-
-                    {isTokenActive && (
-                      <button
-                        onClick={() => copyLink(member.direct_token)}
-                        className="ml-2 text-xs font-semibold text-foreground hover:underline"
-                      >
-                        {isCopied ? 'Copied' : 'Copy'}
-                      </button>
                     )}
                   </div>
                 </div>
 
                 {/* Action Buttons */}
                 <div className="flex items-center gap-2 pt-2 border-t border-border">
-                  {isTokenActive ? (
+                  {canViewToken && isTokenActive ? (
                     <Button
                       variant="outline"
                       size="sm"
@@ -181,7 +193,7 @@ export default function DirectLinksView({
                     </Button>
                   ) : (
                     <Badge variant="outline" className="w-full justify-center py-1.5 text-xs font-normal text-muted-foreground">
-                      Account Activated (Password Set)
+                      {member.token_used ? 'Account Activated (Password Set)' : 'Authorized Member'}
                     </Badge>
                   )}
                 </div>

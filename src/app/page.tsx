@@ -225,6 +225,7 @@ export default function HomePage() {
                 <DirectLinksView
                   members={members}
                   currentUserId={currentUser?.id}
+                  currentUserRole={currentUser?.role}
                   onOpenProfileModal={() => setProfileModalOpen(true)}
                 />
               </div>
