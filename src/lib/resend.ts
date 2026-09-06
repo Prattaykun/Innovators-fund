@@ -4,6 +4,9 @@ import nodemailer from 'nodemailer';
 const resendApiKey = process.env.RESEND_API_KEY || '';
 const resend = new Resend(resendApiKey);
 
+// Base URL for links
+const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://innovators.eu.cc';
+
 // Senders
 const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Innovators Fund <notifications@innovators.eu.cc>';
 const SMTP_USER = process.env.SMTP_USER || '';
@@ -115,6 +118,7 @@ export async function sendNewRequestEmail(params: SendRequestEmailParams) {
           .info-table td.label { color: #71717a; width: 35%; font-weight: 500; }
           .info-table td.val { color: #09090b; font-weight: 600; }
           .btn-container { text-align: center; margin-top: 24px; }
+          .btn { display: inline-block; background: #0284c7; color: #ffffff !important; text-decoration: none; font-weight: 600; font-size: 14px; padding: 12px 24px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
           .footer { background: #fafafa; padding: 16px; text-align: center; font-size: 12px; color: #a1a1aa; border-top: 1px solid #f4f4f5; }
         </style>
       </head>
@@ -158,7 +162,12 @@ export async function sendNewRequestEmail(params: SendRequestEmailParams) {
             </div>
 
             <div class="btn-container">
-              <p style="font-size: 13px; color: #71717a; margin-bottom: 12px;">Admins (Snehansh &amp; Prattay) can review and approve in the Innovators Fund dashboard.</p>
+              <a href="${BASE_URL}/?tab=requests&request=${params.requestId}" class="btn">
+                Review &amp; Manage Request &rarr;
+              </a>
+              <p style="font-size: 12px; color: #71717a; margin-top: 14px; margin-bottom: 0;">
+                Admins (Snehansh &amp; Prattay) can approve or reject directly from the dashboard.
+              </p>
             </div>
           </div>
           <div class="footer">
@@ -189,6 +198,7 @@ export interface SendAuditStatusEmailParams {
   status: 'approved' | 'rejected';
   adminNotes?: string | null;
   newBalance: number;
+  requestId?: string;
 }
 
 export async function sendAuditStatusEmail(params: SendAuditStatusEmailParams) {
@@ -209,6 +219,10 @@ export async function sendAuditStatusEmail(params: SendAuditStatusEmailParams) {
     maximumFractionDigits: 0,
   }).format(params.newBalance);
 
+  const requestUrl = params.requestId
+    ? `${BASE_URL}/?tab=requests&request=${params.requestId}`
+    : `${BASE_URL}/?tab=requests`;
+
   const html = `
     <!DOCTYPE html>
     <html>
@@ -226,7 +240,9 @@ export async function sendAuditStatusEmail(params: SendAuditStatusEmailParams) {
           .info-table td { padding: 8px 0; border-bottom: 1px solid #f4f4f5; font-size: 14px; }
           .info-table td.label { color: #71717a; width: 35%; font-weight: 500; }
           .info-table td.val { color: #09090b; font-weight: 600; }
-          .footer { background: #fafafa; padding: 16px; text-align: center; font-size: 12px; color: #a1a1aa; }
+          .btn-container { text-align: center; margin-top: 24px; }
+          .btn { display: inline-block; background: ${isApproved ? '#059669' : '#dc2626'}; color: #ffffff !important; text-decoration: none; font-weight: 600; font-size: 14px; padding: 12px 24px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+          .footer { background: #fafafa; padding: 16px; text-align: center; font-size: 12px; color: #a1a1aa; border-top: 1px solid #f4f4f5; }
         </style>
       </head>
       <body>
@@ -257,6 +273,12 @@ export async function sendAuditStatusEmail(params: SendAuditStatusEmailParams) {
                 <td class="val" style="color: #10b981;">${formattedNewBalance}</td>
               </tr>
             </table>
+
+            <div class="btn-container">
+              <a href="${requestUrl}" class="btn">
+                View Request in Ledger &rarr;
+              </a>
+            </div>
           </div>
           <div class="footer">
             Innovators Fund Management System &bull; Audited &amp; Tracked Automatically
@@ -327,7 +349,9 @@ export async function sendPoolDepositEmail(params: SendPoolDepositEmailParams) {
           .info-table td { padding: 8px 0; border-bottom: 1px solid #f4f4f5; font-size: 14px; }
           .info-table td.label { color: #71717a; width: 40%; font-weight: 500; }
           .info-table td.val { color: #09090b; font-weight: 600; }
-          .footer { background: #fafafa; padding: 16px; text-align: center; font-size: 12px; color: #a1a1aa; }
+          .btn-container { text-align: center; margin-top: 24px; }
+          .btn { display: inline-block; background: #16a34a; color: #ffffff !important; text-decoration: none; font-weight: 600; font-size: 14px; padding: 12px 24px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+          .footer { background: #fafafa; padding: 16px; text-align: center; font-size: 12px; color: #a1a1aa; border-top: 1px solid #f4f4f5; }
         </style>
       </head>
       <body>
@@ -358,6 +382,12 @@ export async function sendPoolDepositEmail(params: SendPoolDepositEmailParams) {
                 <td class="val">${formattedTotalInitial}</td>
               </tr>
             </table>
+
+            <div class="btn-container">
+              <a href="${BASE_URL}/?tab=dashboard" class="btn">
+                View Pool Ledger &rarr;
+              </a>
+            </div>
           </div>
           <div class="footer">
             Innovators Fund Management System &bull; Audited &amp; Tracked Automatically

@@ -132,6 +132,7 @@ export async function PATCH(
         status: newStatus as 'approved' | 'rejected',
         adminNotes: adminNotes || null,
         newBalance: newBalance,
+        requestId: request.id,
       }).catch((err) => console.error('Status email dispatch error:', err));
     }
 

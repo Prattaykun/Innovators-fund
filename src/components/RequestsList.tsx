@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Clock,
   CheckCircle2,
@@ -27,6 +27,7 @@ interface RequestsListProps {
     name: string;
     role: MemberRole;
   } | null;
+  highlightRequestId?: string | null;
   onRefresh: () => void;
   onOpenRequestModal: () => void;
 }
@@ -34,18 +35,43 @@ interface RequestsListProps {
 export default function RequestsList({
   requests,
   currentUser,
+  highlightRequestId,
   onRefresh,
   onOpenRequestModal,
 }: RequestsListProps) {
   const [activeFilter, setActiveFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('all');
   const [search, setSearch] = useState('');
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
-
   // Review Dialog State
   const [reviewModalRequest, setReviewModalRequest] = useState<FundRequest | null>(null);
   const [reviewAction, setReviewAction] = useState<'approve' | 'reject'>('approve');
   const [adminNotes, setAdminNotes] = useState('');
   const [reviewError, setReviewError] = useState<string | null>(null);
+  const [highlightedId, setHighlightedId] = useState<string | null>(highlightRequestId || null);
+
+  useEffect(() => {
+    if (highlightRequestId) {
+      setHighlightedId(highlightRequestId);
+      // Ensure the tab displays it even if filtered
+      const targetReq = requests.find((r) => r.id === highlightRequestId);
+      if (targetReq && activeFilter !== 'all' && activeFilter !== targetReq.status) {
+        setActiveFilter('all');
+      }
+
+      setTimeout(() => {
+        const el = document.getElementById(`request-${highlightRequestId}`);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 300);
+
+      // Fade out highlight ring after 5 seconds
+      const timer = setTimeout(() => {
+        setHighlightedId(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [highlightRequestId, requests]);
 
   const isAdmin = currentUser?.role === 'admin';
 
@@ -178,10 +204,17 @@ export default function RequestsList({
             const isApproved = req.status === 'approved';
             const isRejected = req.status === 'rejected';
 
+            const isTarget = req.id === highlightedId;
+
             return (
               <Card
                 key={req.id}
-                className="transition-colors hover:border-foreground/20 shadow-xs"
+                id={`request-${req.id}`}
+                className={`transition-all duration-300 shadow-xs ${
+                  isTarget
+                    ? 'ring-2 ring-emerald-500 border-emerald-500 bg-emerald-50/10 dark:bg-emerald-950/20'
+                    : 'hover:border-foreground/20'
+                }`}
               >
                 <CardContent className="p-5">
                   <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">

@@ -36,6 +36,7 @@ export default function HomePage() {
   const [requests, setRequests] = useState<FundRequest[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
+  const [targetRequestId, setTargetRequestId] = useState<string | null>(null);
 
   // Modals
   const [requestModalOpen, setRequestModalOpen] = useState(false);
@@ -90,6 +91,20 @@ export default function HomePage() {
   useEffect(() => {
     fetchUser();
     fetchData();
+
+    // Check URL parameters for tab and deep-linking to a specific request
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const tabParam = params.get('tab');
+      const reqParam = params.get('request');
+
+      if (reqParam) {
+        setTargetRequestId(reqParam);
+        setActiveTab('requests');
+      } else if (tabParam && ['dashboard', 'requests', 'audits', 'links', 'admin'].includes(tabParam)) {
+        setActiveTab(tabParam as any);
+      }
+    }
   }, [fetchUser, fetchData]);
 
   const handleLogout = async () => {
@@ -197,6 +212,7 @@ export default function HomePage() {
                 <RequestsList
                   requests={requests}
                   currentUser={currentUser}
+                  highlightRequestId={targetRequestId}
                   onRefresh={fetchData}
                   onOpenRequestModal={() => setRequestModalOpen(true)}
                 />
