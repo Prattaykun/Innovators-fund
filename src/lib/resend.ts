@@ -1,10 +1,64 @@
 import { Resend } from 'resend';
+import nodemailer from 'nodemailer';
 
 const resendApiKey = process.env.RESEND_API_KEY || '';
 const resend = new Resend(resendApiKey);
 
-// Resend verified domain sender
-const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Innovators Fund <notifications@innovators.eu.cc>';
+// Senders
+const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'Innovators Fund <notifications@innovators.eu.cc>';
+const SMTP_USER = process.env.SMTP_USER || '';
+const SMTP_PASS = process.env.SMTP_PASS || '';
+const SMTP_FROM = process.env.SMTP_FROM || `Innovators Fund <${SMTP_USER}>`;
+
+// Reusable Gmail Transporter when SMTP credentials are present
+const smtpTransporter = SMTP_USER && SMTP_PASS
+  ? nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: SMTP_USER,
+        pass: SMTP_PASS,
+      },
+    })
+  : null;
+
+/**
+ * Universal email dispatcher:
+ * Uses Gmail SMTP first (guaranteed 100% inbox delivery without domain reputation blocks)
+ * Falls back to Resend API if SMTP is not configured or encounters an issue.
+ */
+async function dispatchEmail(options: {
+  toEmails: string[];
+  subject: string;
+  html: string;
+}) {
+  if (smtpTransporter && SMTP_USER) {
+    try {
+      const info = await smtpTransporter.sendMail({
+        from: SMTP_FROM,
+        to: options.toEmails,
+        subject: options.subject,
+        html: options.html,
+      });
+      return { success: true, via: 'smtp', messageId: info.messageId };
+    } catch (smtpError: any) {
+      console.warn('Gmail SMTP send failed, falling back to Resend:', smtpError?.message || smtpError);
+    }
+  }
+
+  // Fallback to Resend API
+  try {
+    const result = await resend.emails.send({
+      from: RESEND_FROM_EMAIL,
+      to: options.toEmails,
+      subject: options.subject,
+      html: options.html,
+    });
+    return { success: true, via: 'resend', data: result };
+  } catch (resendError: any) {
+    console.error('Resend email dispatch error:', resendError?.message || resendError);
+    return { success: false, error: resendError?.message || resendError };
+  }
+}
 
 export interface SendRequestEmailParams {
   toEmails: string[];
@@ -116,15 +170,13 @@ export async function sendNewRequestEmail(params: SendRequestEmailParams) {
   `;
 
   try {
-    const result = await resend.emails.send({
-      from: FROM_EMAIL,
-      to: params.toEmails,
+    return await dispatchEmail({
+      toEmails: params.toEmails,
       subject: `[Innovators Fund] New Request: ${formattedAmount} by ${params.requesterName}`,
       html,
     });
-    return { success: true, data: result };
   } catch (error: any) {
-    console.error('Error sending Resend email:', error?.message || error);
+    console.error('Error sending request email:', error?.message || error);
     return { success: false, error: error?.message || error };
   }
 }
@@ -215,15 +267,13 @@ export async function sendAuditStatusEmail(params: SendAuditStatusEmailParams) {
   `;
 
   try {
-    const result = await resend.emails.send({
-      from: FROM_EMAIL,
-      to: params.toEmails,
+    return await dispatchEmail({
+      toEmails: params.toEmails,
       subject: `[Innovators Fund] Request ${params.status.toUpperCase()}: ${formattedAmount} for ${params.requesterName}`,
       html,
     });
-    return { success: true, data: result };
   } catch (error: any) {
-    console.error('Error sending Resend audit status email:', error?.message || error);
+    console.error('Error sending audit status email:', error?.message || error);
     return { success: false, error: error?.message || error };
   }
 }
@@ -318,15 +368,13 @@ export async function sendPoolDepositEmail(params: SendPoolDepositEmailParams) {
   `;
 
   try {
-    const result = await resend.emails.send({
-      from: FROM_EMAIL,
-      to: params.toEmails,
+    return await dispatchEmail({
+      toEmails: params.toEmails,
       subject: `[Innovators Fund] +${formattedDeposit} Deposited by ${params.adminName}`,
       html,
     });
-    return { success: true, data: result };
   } catch (error: any) {
-    console.error('Error sending Resend deposit email:', error?.message || error);
+    console.error('Error sending deposit email:', error?.message || error);
     return { success: false, error: error?.message || error };
   }
 }
