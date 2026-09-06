@@ -227,3 +227,106 @@ export async function sendAuditStatusEmail(params: SendAuditStatusEmailParams) {
     return { success: false, error: error?.message || error };
   }
 }
+
+export interface SendPoolDepositEmailParams {
+  toEmails: string[];
+  adminName: string;
+  depositAmount: number;
+  newTotalInitial: number;
+  newAvailableBalance: number;
+  notes?: string;
+}
+
+export async function sendPoolDepositEmail(params: SendPoolDepositEmailParams) {
+  if (!params.toEmails || params.toEmails.length === 0) {
+    return { success: false, reason: 'No recipient emails configured' };
+  }
+
+  const formattedDeposit = new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0,
+  }).format(params.depositAmount);
+
+  const formattedTotalInitial = new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0,
+  }).format(params.newTotalInitial);
+
+  const formattedAvailable = new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0,
+  }).format(params.newAvailableBalance);
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f4f4f5; margin: 0; padding: 24px; color: #18181b; }
+          .container { max-width: 580px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e4e4e7; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+          .header { background: #09090b; color: #ffffff; padding: 24px; text-align: center; }
+          .badge { display: inline-block; background: #dcfce7; color: #15803d; font-weight: 600; font-size: 12px; padding: 4px 10px; border-radius: 9999px; text-transform: uppercase; margin-bottom: 8px; }
+          .content { padding: 24px; }
+          .amount-box { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 16px; margin: 16px 0; text-align: center; }
+          .amount { font-size: 32px; font-weight: 700; color: #16a34a; }
+          .info-table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+          .info-table td { padding: 8px 0; border-bottom: 1px solid #f4f4f5; font-size: 14px; }
+          .info-table td.label { color: #71717a; width: 40%; font-weight: 500; }
+          .info-table td.val { color: #09090b; font-weight: 600; }
+          .footer { background: #fafafa; padding: 16px; text-align: center; font-size: 12px; color: #a1a1aa; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <div class="badge">CAPITAL DEPOSITED</div>
+            <h1 style="margin: 0; font-size: 22px;">Funds Added to Pool</h1>
+            <p style="margin: 4px 0 0 0; font-size: 14px; opacity: 0.9;">Deposited by Admin ${params.adminName}</p>
+          </div>
+          <div class="content">
+            <div class="amount-box">
+              <div style="font-size: 13px; color: #15803d; font-weight: 500;">AMOUNT ADDED</div>
+              <div class="amount">+${formattedDeposit}</div>
+            </div>
+
+            <table class="info-table">
+              <tr>
+                <td class="label">Deposited By</td>
+                <td class="val">${params.adminName} (Administrator)</td>
+              </tr>
+              ${params.notes ? `<tr><td class="label">Deposit Remarks</td><td class="val">${params.notes}</td></tr>` : ''}
+              <tr>
+                <td class="label">New Available Balance</td>
+                <td class="val" style="color: #16a34a; font-size: 16px;">${formattedAvailable}</td>
+              </tr>
+              <tr>
+                <td class="label">Cumulative Capital Pool</td>
+                <td class="val">${formattedTotalInitial}</td>
+              </tr>
+            </table>
+          </div>
+          <div class="footer">
+            Innovators Fund Management System &bull; Audited &amp; Tracked Automatically
+          </div>
+        </div>
+      </body>
+    </html>
+  `;
+
+  try {
+    const result = await resend.emails.send({
+      from: FROM_EMAIL,
+      to: params.toEmails,
+      subject: `[Innovators Fund] +${formattedDeposit} Deposited by ${params.adminName}`,
+      html,
+    });
+    return { success: true, data: result };
+  } catch (error: any) {
+    console.error('Error sending Resend deposit email:', error?.message || error);
+    return { success: false, error: error?.message || error };
+  }
+}

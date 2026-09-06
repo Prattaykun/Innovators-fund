@@ -16,6 +16,8 @@ import {
   RefreshCw,
   Power,
   RotateCw,
+  PlusCircle,
+  TrendingUp,
 } from 'lucide-react';
 import { Member, MemberRole } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
@@ -36,6 +38,14 @@ export default function AdminPortalView({ currentUserName, onRefreshAll }: Admin
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const [copiedToken, setCopiedToken] = useState<string | null>(null);
+
+  // Add Funds to Pool Modal State
+  const [depositModalOpen, setDepositModalOpen] = useState(false);
+  const [depositAmount, setDepositAmount] = useState('');
+  const [depositNotes, setDepositNotes] = useState('');
+  const [depositLoading, setDepositLoading] = useState(false);
+  const [depositSuccessMsg, setDepositSuccessMsg] = useState<string | null>(null);
+  const [depositError, setDepositError] = useState<string | null>(null);
 
   // Invite Modal State
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
@@ -209,6 +219,47 @@ export default function AdminPortalView({ currentUserName, onRefreshAll }: Admin
     }
   };
 
+  const handleDepositSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setDepositError(null);
+    setDepositSuccessMsg(null);
+
+    const amt = Number(depositAmount);
+    if (isNaN(amt) || amt <= 0) {
+      setDepositError('Please enter a valid amount to deposit.');
+      return;
+    }
+
+    setDepositLoading(true);
+    try {
+      const res = await fetch('/api/fund', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: amt,
+          notes: depositNotes.trim() || undefined,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Failed to deposit funds');
+
+      setDepositSuccessMsg(`Successfully added ₹${amt.toLocaleString('en-IN')} to the Innovators Fund pool!`);
+      setDepositAmount('');
+      setDepositNotes('');
+      onRefreshAll();
+
+      setTimeout(() => {
+        setDepositModalOpen(false);
+        setDepositSuccessMsg(null);
+      }, 2000);
+    } catch (err: any) {
+      setDepositError(err?.message || 'Failed to add funds');
+    } finally {
+      setDepositLoading(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header Card */}
@@ -226,25 +277,41 @@ export default function AdminPortalView({ currentUserName, onRefreshAll }: Admin
                 </Badge>
               </div>
               <h2 className="text-xl font-bold tracking-tight text-foreground">
-                Team Governance &amp; Member Management
+                Team Governance &amp; Treasury Management
               </h2>
               <p className="text-xs text-muted-foreground max-w-xl leading-relaxed">
-                Configure member accesses, generate one-time setup links, manage permissions, and oversee security credentials for Team Innovators.
+                Deposit additional capital to the ₹1.5L pool, configure member accesses, generate one-time setup links, and oversee financial governance for Team Innovators.
               </p>
             </div>
 
-            <Button
-              size="sm"
-              onClick={() => {
-                setInviteSuccessData(null);
-                setInviteError(null);
-                setInviteModalOpen(true);
-              }}
-              className="gap-2 self-start sm:self-auto text-xs"
-            >
-              <UserPlus className="h-4 w-4" />
-              <span>Invite New Member</span>
-            </Button>
+            <div className="flex items-center gap-2 self-start sm:self-auto flex-wrap">
+              <Button
+                size="sm"
+                onClick={() => {
+                  setDepositError(null);
+                  setDepositSuccessMsg(null);
+                  setDepositModalOpen(true);
+                }}
+                className="gap-2 text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-semibold shadow-xs"
+              >
+                <PlusCircle className="h-4 w-4" />
+                <span>Deposit Funds</span>
+              </Button>
+
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => {
+                  setInviteSuccessData(null);
+                  setInviteError(null);
+                  setInviteModalOpen(true);
+                }}
+                className="gap-2 text-xs font-semibold"
+              >
+                <UserPlus className="h-4 w-4" />
+                <span>Invite Member</span>
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -644,6 +711,122 @@ export default function AdminPortalView({ currentUserName, onRefreshAll }: Admin
                 </Button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Deposit Capital Modal */}
+      {depositModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in">
+          <div className="relative w-full max-w-md rounded-xl border border-border bg-popover p-6 shadow-xl text-popover-foreground">
+            <div className="flex items-center justify-between border-b border-border pb-3">
+              <div className="flex items-center gap-2">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                  <PlusCircle className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground">
+                    Add Funds to Capital Pool
+                  </h3>
+                  <p className="text-[11px] text-muted-foreground">
+                    Admin Authority: {currentUserName}
+                  </p>
+                </div>
+              </div>
+              <Badge variant="admin" className="text-[10px]">
+                Treasury
+              </Badge>
+            </div>
+
+            {depositError && (
+              <div className="mt-3 flex items-center gap-2 rounded-lg border border-destructive/20 bg-destructive/10 p-2.5 text-xs text-destructive">
+                <AlertCircle className="h-4 w-4 shrink-0" />
+                <span>{depositError}</span>
+              </div>
+            )}
+
+            {depositSuccessMsg ? (
+              <div className="my-6 text-center space-y-3">
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                  <CheckCircle2 className="h-6 w-6" />
+                </div>
+                <div className="font-bold text-sm text-foreground">
+                  Deposit Confirmed!
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {depositSuccessMsg}
+                </p>
+              </div>
+            ) : (
+              <form onSubmit={handleDepositSubmit} className="mt-4 space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-foreground">
+                    Deposit Amount (INR ₹) *
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-2 text-xs font-bold text-muted-foreground">
+                      ₹
+                    </span>
+                    <Input
+                      type="number"
+                      required
+                      min={1}
+                      step="any"
+                      placeholder="e.g. 50000"
+                      value={depositAmount}
+                      onChange={(e) => setDepositAmount(e.target.value)}
+                      className="pl-7 text-xs"
+                      autoFocus
+                    />
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    This amount will directly increase the available balance and total pool capital.
+                  </p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-foreground">
+                    Deposit Remarks / Source (Optional)
+                  </label>
+                  <Input
+                    type="text"
+                    placeholder="e.g. Sponsor contribution, grant award, capital top-up"
+                    value={depositNotes}
+                    onChange={(e) => setDepositNotes(e.target.value)}
+                    className="text-xs"
+                  />
+                </div>
+
+                <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-1 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-1.5 font-medium text-foreground text-[11px]">
+                    <Shield className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
+                    <span>Audit &amp; Email Dispatch</span>
+                  </div>
+                  <p className="text-[11px]">
+                    A permanent audit ledger entry <code className="text-foreground font-mono">FUND_DEPOSITED</code> will be recorded, and an email update will automatically be dispatched to all team members via Resend.
+                  </p>
+                </div>
+
+                <div className="flex items-center justify-end gap-2 pt-2 border-t border-border">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setDepositModalOpen(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    type="submit"
+                    size="sm"
+                    disabled={depositLoading || !depositAmount}
+                    className="bg-emerald-600 hover:bg-emerald-500 text-white font-semibold"
+                  >
+                    {depositLoading ? 'Depositing...' : 'Confirm Deposit'}
+                  </Button>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       )}

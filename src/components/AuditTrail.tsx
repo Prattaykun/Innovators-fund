@@ -91,6 +91,8 @@ export default function AuditTrail({ initialAudits }: AuditTrailProps) {
     switch (action) {
       case 'INITIAL_POOL_CREATED':
         return <Badge variant="outline" className="font-semibold">Pool Initialized</Badge>;
+      case 'FUND_DEPOSITED':
+        return <Badge variant="success" className="font-semibold">Funds Deposited</Badge>;
       case 'REQUEST_CREATED':
         return <Badge variant="secondary">Request Raised</Badge>;
       case 'REQUEST_APPROVED':
@@ -118,6 +120,7 @@ export default function AuditTrail({ initialAudits }: AuditTrailProps) {
         <div className="flex flex-wrap items-center gap-1 rounded-lg border border-border bg-muted/40 p-1">
           {[
             { id: 'ALL', label: 'All Logs' },
+            { id: 'FUND_DEPOSITED', label: 'Deposits' },
             { id: 'REQUEST_APPROVED', label: 'Approvals' },
             { id: 'REQUEST_CREATED', label: 'Requests' },
             { id: 'REQUEST_REJECTED', label: 'Rejections' },

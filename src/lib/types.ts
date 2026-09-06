@@ -49,6 +49,7 @@ export interface FundRequest {
 
 export type AuditActionType =
   | 'INITIAL_POOL_CREATED'
+  | 'FUND_DEPOSITED'
   | 'REQUEST_CREATED'
   | 'REQUEST_APPROVED'
   | 'REQUEST_REJECTED'
