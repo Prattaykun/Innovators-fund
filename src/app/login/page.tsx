@@ -189,18 +189,20 @@ function LoginContent() {
   // Loading state while verifying token
   if (verifyingToken) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-zinc-50 p-4 dark:bg-zinc-950">
-        <div className="text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400 shadow-md">
-            <Sparkles className="h-7 w-7 animate-spin" />
+      <div className="flex min-h-screen items-center justify-center bg-background p-4">
+        <Card className="w-full max-w-sm p-8 text-center border-border shadow-sm">
+          {/* Indeterminate loading line stretching and compressing */}
+          <div className="mx-auto mb-6 h-1.5 w-48 sm:w-56 overflow-hidden rounded-full bg-emerald-500/20 relative">
+            <div className="animate-indeterminate-1 absolute top-0 bottom-0 rounded-full bg-gradient-to-r from-emerald-500 to-teal-400 dark:from-emerald-400 dark:to-teal-300 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
+            <div className="animate-indeterminate-2 absolute top-0 bottom-0 rounded-full bg-gradient-to-r from-emerald-500 to-teal-400 dark:from-emerald-400 dark:to-teal-300 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
           </div>
-          <h2 className="mt-4 text-base font-bold text-zinc-900 dark:text-white">
+          <h2 className="text-base font-bold text-foreground">
             Verifying Direct Setup Link...
           </h2>
-          <p className="mt-1 text-xs text-zinc-500">
+          <p className="mt-1.5 text-xs text-muted-foreground">
             Validating security token and preparing your activation...
           </p>
-        </div>
+        </Card>
       </div>
     );
   }
