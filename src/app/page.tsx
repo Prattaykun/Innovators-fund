@@ -9,6 +9,7 @@ import DirectLinksView from '@/components/DirectLinksView';
 import AdminPortalView from '@/components/AdminPortalView';
 import RequestModal from '@/components/RequestModal';
 import ProfileSettingsModal from '@/components/ProfileSettingsModal';
+import LoadingSwapScreen from '@/components/LoadingSwapScreen';
 import { FundMetrics, FundRequest, Member, MemberRole } from '@/lib/types';
 import { Sparkles, RefreshCw, AlertCircle } from 'lucide-react';
 
@@ -148,14 +149,7 @@ export default function HomePage() {
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {loading ? (
-          <div className="flex min-h-[400px] items-center justify-center">
-            <div className="flex flex-col items-center gap-3">
-              <RefreshCw className="h-6 w-6 animate-spin text-emerald-600" />
-              <span className="text-xs font-semibold text-zinc-500">
-                Loading Innovators Fund ledger...
-              </span>
-            </div>
-          </div>
+          <LoadingSwapScreen message="Synchronizing Team Innovators treasury & ledger..." />
         ) : (
           <div className="space-y-6">
             {/* Tab: Dashboard */}
